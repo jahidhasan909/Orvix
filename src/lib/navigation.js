@@ -57,7 +57,6 @@ export const NAVIGATION = [
     roles: R.PLATFORM,
     items: [
       { id: "ngos", label: "NGOs", href: "/platform/ngos", icon: "Globe", roles: R.PLATFORM },
-      { id: "ngo-details", label: "NGO Details", href: "/platform/ngo-details", icon: "Folder", roles: R.PLATFORM },
       { id: "ngo-modules", label: "Module Management", href: "/platform/modules", icon: "Layers", roles: R.PLATFORM },
     ],
   },
@@ -87,6 +86,7 @@ export const NAVIGATION = [
     roles: R.NGO,
     items: [
       { id: "ngo-profile", label: "NGO Profile / Settings", href: "/ngo/profile", icon: "Globe", roles: R.NGO },
+      { id: "sharepoint", label: "SharePoint", href: "/ngo/sharepoint", icon: "Folders", roles: R.NGO, feature: "sharePoint" },
     ],
   },
   {
@@ -213,6 +213,8 @@ export const NAVIGATION = [
 function canSeeItem(item, user) {
   if (item.roles?.length && !item.roles.includes(user.role)) return false;
   if (item.module && !(user.enabledModules ?? []).includes(item.module)) return false;
+  if (item.feature === "sharePoint" && !user.sharePointEnabled) return false;
+  if (item.feature === "mfa" && !user.mfaEnabled) return false;
   if (item.excludeDesignations?.includes(user.designation)) return false;
 
   if (user.role === ROLES.PLATFORM_ADMIN) {
@@ -271,7 +273,7 @@ export function findActiveHref(pathname, sections) {
 export const PAGE_META = {
   "/dashboard": { title: "Dashboard", eyebrow: "Overview", description: "Role-aware snapshot of platform or NGO operations." },
   "/platform/ngos": { title: "NGOs", eyebrow: "Organization", description: "Create NGOs here, then assign an NGO Admin for each organization." },
-  "/platform/ngo-details": { title: "NGO Details", eyebrow: "Organization", description: "Profile, status, and configuration for a selected NGO." },
+  "/platform/ngos/new": { title: "Create NGO", eyebrow: "Organization", description: "Register an NGO, enable modules, and create its first NGO Admin." },
   "/platform/modules": { title: "Module Management", eyebrow: "Organization", description: "Enable or disable operational modules per NGO." },
   "/platform/users": { title: "Platform Users", eyebrow: "Administration", description: "Platform administrators only. NGO Admins and workers are managed in their own sections." },
   "/platform/settings": { title: "Platform Settings", eyebrow: "Administration", description: "Global platform configuration and branding." },
@@ -282,6 +284,7 @@ export const PAGE_META = {
   "/notifications": { title: "Notifications", eyebrow: "Account", description: "Alerts, assignments, and system notices." },
   "/profile": { title: "Profile", eyebrow: "Account", description: "Personal account details and preferences." },
   "/ngo/profile": { title: "NGO Profile / Settings", eyebrow: "Organization", description: "Organization identity, locale, and workspace settings." },
+  "/ngo/sharepoint": { title: "SharePoint", eyebrow: "Organization", description: "SharePoint libraries and files enabled for this NGO." },
   "/projects": { title: "Projects", eyebrow: "Operations", description: "NGO programs and field projects." },
   "/sites": { title: "Sites", eyebrow: "Operations", description: "Field sites and warehouses linked to projects." },
   "/workers": { title: "Workers / Employees", eyebrow: "Operations", description: "NGO Admins create workers here and assign designations, permissions, and sites." },

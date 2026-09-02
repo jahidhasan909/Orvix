@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, ChevronDown } from "@gravity-ui/icons";
+import { Bell } from "@gravity-ui/icons";
 import { PAGE_META } from "@/lib/navigation";
 import { useAccess } from "@/context/AccessContext";
 import { MobileNav } from "./Sidebar";
@@ -20,10 +20,8 @@ export default function DashboardHeader() {
   const [openNotes, setOpenNotes] = useState(false);
   const meta = PAGE_META[pathname] ?? { title: "ORVIX", eyebrow: "Workspace" };
 
-  if (!persona) return null;
-
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/90 px-4 backdrop-blur-md lg:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-dashed border-slate-300 bg-white px-4 lg:px-6">
       <MobileNav />
 
       <div className="min-w-0 flex-1">
@@ -31,15 +29,14 @@ export default function DashboardHeader() {
         <h1 className="truncate text-base font-semibold text-slate-900">{meta.title}</h1>
       </div>
 
-      <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 md:flex">
-        <span className="size-1.5 rounded-full bg-emerald-500" />
-        <span className="max-w-[220px] truncate text-xs font-medium text-slate-600">
-          {persona.orgName}
-          <span className="text-slate-400"> · {persona.roleLabel}</span>
-        </span>
-      </div>
+      <div className="flex shrink-0 items-center gap-3">
+        {persona?.roleLabel && (
+          <span className="max-w-[160px] truncate rounded-full border border-[#2075fe]/20 bg-[#2075fe]/10 px-3 py-1 text-xs font-semibold text-[#2075fe] sm:max-w-none">
+            {persona.roleLabel}
+          </span>
+        )}
 
-      <div className="relative">
+        <div className="relative">
         <button
           type="button"
           onClick={() => setOpenNotes((value) => !value)}
@@ -47,13 +44,13 @@ export default function DashboardHeader() {
           aria-label="Notifications"
         >
           <Bell className="size-4" />
-          <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-violet-500" />
+          <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-[#2075fe]" />
         </button>
         {openNotes && (
           <div className="absolute top-12 right-0 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <p className="text-sm font-semibold text-slate-900">Notifications</p>
-              <Link href="/notifications" onClick={() => setOpenNotes(false)} className="text-xs font-medium text-violet-600">
+              <Link href="/notifications" onClick={() => setOpenNotes(false)} className="text-xs font-medium text-[#2075fe]">
                 View all
               </Link>
             </div>
@@ -69,22 +66,7 @@ export default function DashboardHeader() {
           </div>
         )}
       </div>
-
-      <Link
-        href="/profile"
-        className="hidden items-center gap-2 rounded-lg border border-slate-200 py-1 pr-2 pl-1 hover:bg-slate-50 sm:flex"
-      >
-        <span className="flex size-8 items-center justify-center rounded-md bg-violet-100 text-[11px] font-semibold text-violet-700">
-          {persona.initials}
-        </span>
-        <span className="hidden min-w-0 lg:block">
-          <span className="block max-w-[120px] truncate text-xs font-semibold text-slate-800">{persona.name}</span>
-          <span className="block max-w-[120px] truncate text-[11px] text-slate-400">
-            {persona.designationLabel ?? persona.roleLabel}
-          </span>
-        </span>
-        <ChevronDown className="size-3 text-slate-400" />
-      </Link>
+      </div>
     </header>
   );
 }

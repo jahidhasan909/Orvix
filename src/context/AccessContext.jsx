@@ -1,21 +1,19 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { sessionToAccess } from "@/lib/session-user";
 
 const AccessContext = createContext(null);
 
 export function AccessProvider({ children }) {
-  const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
     if (!isPending && !session?.user) {
-      router.replace("/login");
+      window.location.replace("/login");
     }
-  }, [isPending, session, router]);
+  }, [isPending, session]);
 
   const value = useMemo(
     () => ({

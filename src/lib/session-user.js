@@ -47,5 +47,8 @@ export function sessionToAccess(user) {
         : ALL_MODULES,
     permissions: user.permissions ?? [],
     initials: initialsFromName(user.name),
+    mfaEnabled: Boolean(user.mfaEnabled),
+    twoFactorEnabled: Boolean(user.twoFactorEnabled),
+    sharePointEnabled: Boolean(user.sharePointEnabled),
   };
 }
