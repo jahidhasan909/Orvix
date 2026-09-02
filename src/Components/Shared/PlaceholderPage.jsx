@@ -2,11 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import { PAGE_META } from "@/lib/navigation";
-import { usePreviewAccess } from "@/context/PreviewAccessContext";
+import { useAccess } from "@/context/AccessContext";
 
 export default function PlaceholderPage({ title, description, columns }) {
   const pathname = usePathname();
-  const { persona } = usePreviewAccess();
+  const { persona } = useAccess();
   const meta = PAGE_META[pathname] ?? {};
   const heading = title ?? meta.title ?? "Page";
   const copy = description ?? meta.description ?? "This workspace is ready for future module functionality.";
@@ -20,8 +20,8 @@ export default function PlaceholderPage({ title, description, columns }) {
           <p className="mt-1 max-w-2xl text-sm text-slate-500">{copy}</p>
         </div>
         <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-500">
-          {persona.roleLabel}
-          {persona.designationLabel ? ` · ${persona.designationLabel}` : ""}
+          {persona?.roleLabel}
+          {persona?.designationLabel ? ` · ${persona.designationLabel}` : ""}
         </span>
       </div>
 

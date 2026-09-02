@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, ChevronDown } from "@gravity-ui/icons";
 import { PAGE_META } from "@/lib/navigation";
-import { usePreviewAccess } from "@/context/PreviewAccessContext";
+import { useAccess } from "@/context/AccessContext";
 import { MobileNav } from "./Sidebar";
 
 const MOCK_NOTIFICATIONS = [
@@ -16,9 +16,11 @@ const MOCK_NOTIFICATIONS = [
 
 export default function DashboardHeader() {
   const pathname = usePathname();
-  const { persona, personas, setPersonaId } = usePreviewAccess();
+  const { persona } = useAccess();
   const [openNotes, setOpenNotes] = useState(false);
   const meta = PAGE_META[pathname] ?? { title: "ORVIX", eyebrow: "Workspace" };
+
+  if (!persona) return null;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/90 px-4 backdrop-blur-md lg:px-6">
@@ -31,25 +33,11 @@ export default function DashboardHeader() {
 
       <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 md:flex">
         <span className="size-1.5 rounded-full bg-emerald-500" />
-        <span className="max-w-[180px] truncate text-xs font-medium text-slate-600">{persona.orgName}</span>
+        <span className="max-w-[220px] truncate text-xs font-medium text-slate-600">
+          {persona.orgName}
+          <span className="text-slate-400"> · {persona.roleLabel}</span>
+        </span>
       </div>
-
-      <label className="flex min-w-0 items-center gap-2">
-        <span className="hidden text-[11px] font-medium text-slate-400 sm:inline">Preview</span>
-        <select
-          value={persona.id}
-          onChange={(event) => setPersonaId(event.target.value)}
-          className="h-9 max-w-[148px] rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none focus:border-violet-400 sm:max-w-[220px]"
-        >
-          {personas.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.roleLabel}
-              {item.designationLabel ? ` · ${item.designationLabel}` : ""}
-              {item.id === "ngo_admin_river" ? " · River Aid" : ""}
-            </option>
-          ))}
-        </select>
-      </label>
 
       <div className="relative">
         <button
@@ -91,7 +79,9 @@ export default function DashboardHeader() {
         </span>
         <span className="hidden min-w-0 lg:block">
           <span className="block max-w-[120px] truncate text-xs font-semibold text-slate-800">{persona.name}</span>
-          <span className="block max-w-[120px] truncate text-[11px] text-slate-400">{persona.roleLabel}</span>
+          <span className="block max-w-[120px] truncate text-[11px] text-slate-400">
+            {persona.designationLabel ?? persona.roleLabel}
+          </span>
         </span>
         <ChevronDown className="size-3 text-slate-400" />
       </Link>

@@ -3,22 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "prisma generate --schema ../Orvix-server/prisma/schema.prisma && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "prisma generate --schema ../Orvix-server/prisma/schema.prisma"
   },
   "dependencies": {
-    "@better-auth/mongo-adapter": "^1.7.2",
+    "@better-auth/prisma-adapter": "^1.7.2",
     "@gravity-ui/icons": "^2.22.0",
     "@heroui/react": "^3.2.4",
     "@heroui/styles": "^3.2.4",
+    "@prisma/client": "^6.11.1",
+    "@supabase/ssr": "^0.12.5",
+    "@supabase/supabase-js": "^2.113.0",
     "bcryptjs": "^3.0.3",
     "better-auth": "^1.7.2",
     "cookie-parser": "^1.4.7",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.39.0",
-    "mongodb": "^7.6.0",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -28,6 +31,10 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "prisma": "^6.11.1",
     "tailwindcss": "^4"
+  },
+  "prisma": {
+    "schema": "../Orvix-server/prisma/schema.prisma"
   }
 }

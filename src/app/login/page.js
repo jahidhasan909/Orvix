@@ -129,10 +129,13 @@ const LoginPage = () => {
                 </form>
 
                 <p className="text-center text-sm text-slate-400 mt-6">
-                    Dont have an account?{' '}
+                    Need a platform admin account?{' '}
                     <Link href="/registration" size="sm" className="text-purple-400 font-medium">
-                        Sign up
+                        Register
                     </Link>
+                </p>
+                <p className="text-center text-xs text-slate-500 mt-2">
+                    NGO Admin and worker accounts are created by an administrator, not through public registration.
                 </p>
 
             </div>

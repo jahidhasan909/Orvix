@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bars, ChevronDown, ChevronRight, Xmark } from "@gravity-ui/icons";
 import { Button, Drawer } from "@heroui/react";
 import { findActiveHref, getVisibleNavigation } from "@/lib/navigation";
-import { usePreviewAccess } from "@/context/PreviewAccessContext";
+import { useAccess } from "@/context/AccessContext";
 import { NAV_ICONS } from "./nav-icons";
 
 function isGroupOpen(item, activeHref, expandedIds) {
@@ -86,17 +87,22 @@ function NavGroup({ item, activeHref, collapsed, expandedIds, onToggle, onNaviga
 
 function SidebarBody({ collapsed, onNavigate, onToggleCollapse }) {
   const pathname = usePathname();
-  const { persona } = usePreviewAccess();
+  const { persona } = useAccess();
   const [expandedIds, setExpandedIds] = useState({});
-  const sections = useMemo(() => getVisibleNavigation(persona), [persona]);
+  const sections = useMemo(() => (persona ? getVisibleNavigation(persona) : []), [persona]);
   const activeHref = findActiveHref(pathname, sections);
 
   return (
     <div className="flex h-full flex-col bg-slate-950 text-slate-200">
       <div className={`flex items-center gap-3 border-b border-white/5 px-4 py-4 ${collapsed ? "flex-col px-2" : ""}`}>
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-sm font-bold text-white">
-          O
-        </div>
+        <Image
+          src="/orvix-logo.png"
+          alt="ORVIX"
+          width={72}
+          height={50}
+          className={`shrink-0 object-contain ${collapsed ? "h-8 w-auto" : "h-9 w-auto"}`}
+          priority
+        />
         {!collapsed && (
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold tracking-wide text-white">ORVIX</p>

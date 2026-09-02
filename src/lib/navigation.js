@@ -270,10 +270,10 @@ export function findActiveHref(pathname, sections) {
 
 export const PAGE_META = {
   "/dashboard": { title: "Dashboard", eyebrow: "Overview", description: "Role-aware snapshot of platform or NGO operations." },
-  "/platform/ngos": { title: "NGOs", eyebrow: "Organization", description: "Directory of organizations on the ORVIX platform." },
+  "/platform/ngos": { title: "NGOs", eyebrow: "Organization", description: "Create NGOs here, then assign an NGO Admin for each organization." },
   "/platform/ngo-details": { title: "NGO Details", eyebrow: "Organization", description: "Profile, status, and configuration for a selected NGO." },
   "/platform/modules": { title: "Module Management", eyebrow: "Organization", description: "Enable or disable operational modules per NGO." },
-  "/platform/users": { title: "Platform Users", eyebrow: "Administration", description: "Platform administrators and access directory." },
+  "/platform/users": { title: "Platform Users", eyebrow: "Administration", description: "Platform administrators only. NGO Admins and workers are managed in their own sections." },
   "/platform/settings": { title: "Platform Settings", eyebrow: "Administration", description: "Global platform configuration and branding." },
   "/platform/security": { title: "Security / MFA", eyebrow: "Administration", description: "Authentication policies and multi-factor settings." },
   "/platform/reports": { title: "Platform Reports", eyebrow: "Insights", description: "Cross-NGO operational and adoption reports." },
@@ -284,7 +284,7 @@ export const PAGE_META = {
   "/ngo/profile": { title: "NGO Profile / Settings", eyebrow: "Organization", description: "Organization identity, locale, and workspace settings." },
   "/projects": { title: "Projects", eyebrow: "Operations", description: "NGO programs and field projects." },
   "/sites": { title: "Sites", eyebrow: "Operations", description: "Field sites and warehouses linked to projects." },
-  "/workers": { title: "Workers / Employees", eyebrow: "Operations", description: "Staff directory, designations, and assignments." },
+  "/workers": { title: "Workers / Employees", eyebrow: "Operations", description: "NGO Admins create workers here and assign designations, permissions, and sites." },
   "/workers/details": { title: "Worker Details", eyebrow: "Operations", description: "Individual worker profile, role, and responsibilities." },
   "/attendance": { title: "Attendance", eyebrow: "Operations", description: "Team attendance records and exceptions." },
   "/attendance/me": { title: "My Attendance", eyebrow: "My Work", description: "Your personal attendance history." },

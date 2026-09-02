@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Input, Button, Link } from '@heroui/react';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { PUBLIC_REGISTRATION } from '@/lib/user-creation';
 
 const RegistrationPage = () => {
     const [isVisible, setIsVisible] = useState(false);
@@ -56,8 +57,13 @@ const RegistrationPage = () => {
             <div className="w-full max-w-md rounded-2xl bg-slate-900/60 p-8 shadow-xl backdrop-blur-xl border border-slate-800">
                 
                 <div className="mb-6 text-center">
-                    <h2 className="text-3xl font-bold tracking-tight text-white">Create an Account</h2>
-                    <p className="text-sm text-slate-400 mt-2">Sign up using Better Auth & HeroUI</p>
+                    <p className="mb-3 inline-flex rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-200">
+                        {PUBLIC_REGISTRATION.roleLabel}
+                    </p>
+                    <h2 className="text-3xl font-bold tracking-tight text-white">Platform registration</h2>
+                    <p className="text-sm text-slate-400 mt-2">
+                        This public flow creates a Main Platform Admin only. NGO Admins and workers are added later from inside the platform.
+                    </p>
                 </div>
 
                 {authError && (
@@ -172,7 +178,7 @@ const RegistrationPage = () => {
                         isLoading={isLoading}
                         className="w-full font-semibold mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
                     >
-                        {isLoading ? 'Creating account...' : 'Sign Up'}
+                        {isLoading ? 'Creating account...' : 'Create Platform Admin'}
                     </Button>
                 </form>
 

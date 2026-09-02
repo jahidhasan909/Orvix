@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePreviewAccess } from "@/context/PreviewAccessContext";
+import { useAccess } from "@/context/AccessContext";
 import { DESIGNATIONS, ROLES } from "@/lib/navigation";
 
 const PLATFORM_CARDS = [
@@ -33,7 +33,7 @@ const DATA_ENTRY_CARDS = [
 ];
 
 export default function DashboardPage() {
-  const { persona } = usePreviewAccess();
+  const { persona } = useAccess();
   const cards =
     persona.role === ROLES.PLATFORM_ADMIN
       ? PLATFORM_CARDS
@@ -69,9 +69,7 @@ export default function DashboardPage() {
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold text-slate-800">Workspace</p>
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          Use the sidebar to move through modules available to this persona. Disabled NGO modules and
-          unassigned worker permissions are hidden automatically. This dashboard is a layout preview
-          and is not connected to live data yet.
+          Modules in the sidebar follow your role, enabled NGO modules, and assigned permissions.
         </p>
       </div>
     </div>

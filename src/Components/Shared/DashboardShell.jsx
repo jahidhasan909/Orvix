@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PreviewAccessProvider } from "@/context/PreviewAccessContext";
+import { AccessProvider, useAccess } from "@/context/AccessContext";
 import { DesktopSidebar } from "./Sidebar";
 import DashboardHeader from "./DashboardHeader";
 
 function Shell({ children }) {
+  const { persona, isPending } = useAccess();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -21,6 +22,10 @@ function Shell({ children }) {
     });
   };
 
+  if (isPending || !persona) {
+    return <div className="min-h-screen bg-slate-50" />;
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50">
       <DesktopSidebar collapsed={collapsed} onToggleCollapse={toggle} />
@@ -34,8 +39,8 @@ function Shell({ children }) {
 
 export default function DashboardShell({ children }) {
   return (
-    <PreviewAccessProvider>
+    <AccessProvider>
       <Shell>{children}</Shell>
-    </PreviewAccessProvider>
+    </AccessProvider>
   );
 }
