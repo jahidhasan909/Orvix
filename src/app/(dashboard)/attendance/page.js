@@ -23,6 +23,7 @@ export default function Page() {
   const [drafts, setDrafts] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState("");
   const [reasons, setReasons] = useState(ABSENCE_REASONS);
 
   const load = (day) => {

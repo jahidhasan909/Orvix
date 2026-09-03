@@ -12,7 +12,7 @@ export async function buildWorkerSalaryPeriod(prisma, { ngoId, worker, from, to 
         userId: worker.id,
         date: { gte: periodStart, lte: periodEnd },
       },
-      orderBy: { date: "asc" },
+      orderBy: [{ date: "asc" }, { createdAt: "asc" }],
     }),
     prisma.leaveRequest.findMany({
       where: {

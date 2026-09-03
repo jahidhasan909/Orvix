@@ -35,12 +35,28 @@ export function money(value) {
 
 export function utcDate(value) {
   if (value instanceof Date) {
-    return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
+    if (Number.isNaN(value.getTime())) return null;
+    const utcMidnight =
+      value.getUTCHours() === 0 &&
+      value.getUTCMinutes() === 0 &&
+      value.getUTCSeconds() === 0 &&
+      value.getUTCMilliseconds() === 0;
+    if (utcMidnight) {
+      return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
+    }
+    return new Date(Date.UTC(value.getFullYear(), value.getMonth(), value.getDate()));
   }
-  const raw = String(value || "");
-  const date = raw.includes("T") ? new Date(raw) : new Date(`${raw}T00:00:00.000Z`);
-  if (Number.isNaN(date.getTime())) return null;
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  const dateOnly = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (dateOnly && !raw.includes("T")) {
+    return new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3])));
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return utcDate(parsed);
 }
 
 export function dateKey(value) {
@@ -153,9 +169,6 @@ export function calculateAttendancePay(salary, records = [], options = {}) {
   };
 
   if (!from || !to || !today) return { ...empty, reason: "Invalid salary period." };
-  if (!salary || salary.status !== SALARY_STATUSES.ACTIVE) {
-    return { ...empty, reason: "Salary is inactive or not configured." };
-  }
 
   const lastExpected = to < today ? to : today;
   const days = [];
@@ -171,6 +184,10 @@ export function calculateAttendancePay(salary, records = [], options = {}) {
       outcome,
       recorded: Boolean(record),
     });
+  }
+
+  if (!salary || salary.status !== SALARY_STATUSES.ACTIVE) {
+    return { ...empty, days, reason: "Salary is inactive or not configured." };
   }
 
   const presentDays = days.filter((day) => day.outcome === DAY_OUTCOME.PRESENT).length;

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import WorkerAttendanceCalendar from "@/Components/Attendance/WorkerAttendanceCalendar";
 import { ABSENCE_REASONS } from "@/lib/absence-policy";
 import { monthCursor, shiftMonth } from "@/lib/attendance-day";
+import { dateKey } from "@/lib/payroll";
 
 function moneyLabel(value) {
   if (value == null || Number.isNaN(Number(value))) return "—";
@@ -13,7 +14,7 @@ function moneyLabel(value) {
 export default function Page() {
   const [cursor, setCursor] = useState(() => monthCursor());
   const [data, setData] = useState(null);
-  const [selected, setSelected] = useState(() => new Date().toISOString().slice(0, 10));
+  const [selected, setSelected] = useState(() => dateKey(new Date()));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState("");
@@ -28,8 +29,11 @@ export default function Page() {
         if (!response.ok) throw new Error(payload.error || "Could not load attendance.");
         setData(payload);
         setSelected((current) => {
-          if (current >= nextCursor.from && current <= nextCursor.to) return current;
-          return payload.date >= nextCursor.from && payload.date <= nextCursor.to ? payload.date : nextCursor.from;
+          const today = payload.date || dateKey(new Date());
+          if (current >= nextCursor.from && current <= nextCursor.to) {
+            return current <= today ? current : today;
+          }
+          return today >= nextCursor.from && today <= nextCursor.to ? today : nextCursor.from;
         });
       })
       .catch((loadError) => setError(loadError.message))
@@ -46,7 +50,7 @@ export default function Page() {
     const response = await fetch("/api/attendance/me", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status, reason }),
+      body: JSON.stringify({ status, reason, date: selected }),
     });
     const payload = await response.json().catch(() => ({}));
     setSaving("");
@@ -54,9 +58,10 @@ export default function Page() {
       setError(payload.error || "Could not record attendance.");
       return;
     }
+    setData(payload);
+    setSelected(payload.date || selected);
     setAbsentOpen(false);
     setAbsentReason("");
-    load(cursor);
   };
 
   const markPresent = () => saveToday("present");
@@ -113,7 +118,7 @@ export default function Page() {
         <section className="rounded-2xl border border-dashed border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm font-semibold text-slate-900">Why are you absent today?</p>
           <p className="mt-1 text-sm text-slate-500">
-            The reason is saved on your record. Paid reasons (such as Sick) do not deduct salary; unpaid reasons do.
+            This applies to the selected date. Paid reasons (such as Sick) do not deduct salary; unpaid reasons do.
           </p>
           <div className="mt-4 flex flex-wrap items-end gap-3">
             <label className="text-sm font-medium text-slate-800">

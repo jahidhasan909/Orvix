@@ -4,7 +4,7 @@ import { ABSENCE_REASONS, resolveAbsencePolicy } from "@/lib/absence-policy";
 import { ATTENDANCE_STATUS, dateKey, monthBounds, utcDate } from "@/lib/payroll";
 import { requireNgoAdmin } from "@/lib/require-ngo-admin";
 import { ROLES } from "@/lib/navigation";
-import { buildWorkerSalaryPeriod } from "@/lib/salary-period";
+import { dayRange, upsertWorkerAttendance } from "@/lib/attendance-save";
 
 const ALLOWED = new Set(Object.values(ATTENDANCE_STATUS));
 
@@ -16,7 +16,8 @@ export async function GET(request) {
   const gate = await requireNgoAdmin();
   if (gate.error) return jsonError(gate.error, gate.status);
 
-  const date = utcDate(request.nextUrl.searchParams.get("date") || new Date());
+  const range = dayRange(request.nextUrl.searchParams.get("date") || new Date());
+  const date = range?.start;
   if (!date) return jsonError("A valid date is required.");
 
   const [workers, records] = await Promise.all([
@@ -26,7 +27,7 @@ export async function GET(request) {
       select: { id: true, name: true, employeeId: true, designation: true, status: true },
     }),
     prisma.attendanceRecord.findMany({
-      where: { ngoId: gate.ngoId, date },
+      where: { ngoId: gate.ngoId, date: { gte: range.start, lt: range.end } },
     }),
   ]);
 
@@ -78,25 +79,27 @@ export async function POST(request) {
   if (!worker) return jsonError("Worker not found.", 404);
 
   const existing = await prisma.attendanceRecord.findFirst({
-    where: { ngoId: gate.ngoId, userId, date },
+    where: {
+      ngoId: gate.ngoId,
+      userId,
+      date: { gte: date, lt: new Date(date.getTime() + 86400000) },
+    },
   });
 
-  const data = {
+  const record = await upsertWorkerAttendance(prisma, {
     ngoId: gate.ngoId,
     userId,
-    worker: worker.name,
+    workerName: worker.name,
     date,
-    status,
-    leavePaid: status === ATTENDANCE_STATUS.LEAVE ? leavePaid : status === ATTENDANCE_STATUS.ABSENT ? policy.paid : false,
-    reason: status === ATTENDANCE_STATUS.ABSENT ? policy.label : null,
-    checkInAt: status === ATTENDANCE_STATUS.PRESENT || status === ATTENDANCE_STATUS.LATE
-      ? existing?.checkInAt ?? new Date()
-      : null,
-  };
-
-  const record = existing
-    ? await prisma.attendanceRecord.update({ where: { id: existing.id }, data })
-    : await prisma.attendanceRecord.create({ data });
+    data: {
+      status,
+      leavePaid: status === ATTENDANCE_STATUS.LEAVE ? leavePaid : status === ATTENDANCE_STATUS.ABSENT ? policy.paid : false,
+      reason: status === ATTENDANCE_STATUS.ABSENT ? policy.label : null,
+      checkInAt: status === ATTENDANCE_STATUS.PRESENT || status === ATTENDANCE_STATUS.LATE
+        ? existing?.checkInAt ?? new Date()
+        : null,
+    },
+  });
 
   const full = await prisma.user.findFirst({
     where: { id: userId, ngoId: gate.ngoId, role: ROLES.WORKER },

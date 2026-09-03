@@ -12,7 +12,7 @@ export async function requireNgoAdmin() {
   }
 
   if (session.user.role !== ROLES.NGO_ADMIN || !session.user.ngoId) {
-    return { error: "Only an NGO Admin can manage workers for their organization.", status: 403 };
+    return { error: "Only an NGO Admin can manage this organization.", status: 403 };
   }
 
   return { session, ngoId: session.user.ngoId };
