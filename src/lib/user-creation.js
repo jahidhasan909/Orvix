@@ -37,6 +37,7 @@ export const INTERNAL_USER_FLOWS = {
       { id: DESIGNATIONS.FIELD_WORKER, label: "Field Worker" },
       { id: DESIGNATIONS.PROJECT_WORKER, label: "Project Worker" },
       { id: DESIGNATIONS.DATA_ENTRY_OFFICER, label: "Data Entry Officer" },
+      { id: DESIGNATIONS.OTHER, label: "Other" },
     ],
   },
   platformAdminInvite: {

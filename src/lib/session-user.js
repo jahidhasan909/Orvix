@@ -11,6 +11,7 @@ export const DESIGNATION_LABELS = {
   [DESIGNATIONS.FIELD_WORKER]: "Field Worker",
   [DESIGNATIONS.PROJECT_WORKER]: "Project Worker",
   [DESIGNATIONS.DATA_ENTRY_OFFICER]: "Data Entry Officer",
+  [DESIGNATIONS.OTHER]: "Other",
 };
 
 function initialsFromName(name) {
@@ -28,7 +29,10 @@ export function sessionToAccess(user) {
 
   const role = Object.values(ROLES).includes(user.role) ? user.role : ROLES.PLATFORM_ADMIN;
   const designation = user.designation ?? null;
-  const designationLabel = DESIGNATION_LABELS[designation] ?? null;
+  const designationLabel =
+    designation === DESIGNATIONS.OTHER
+      ? user.designationOther || DESIGNATION_LABELS[DESIGNATIONS.OTHER]
+      : DESIGNATION_LABELS[designation] ?? null;
 
   return {
     id: user.id,
@@ -46,6 +50,8 @@ export function sessionToAccess(user) {
         ? []
         : ALL_MODULES,
     permissions: user.permissions ?? [],
+    assignedProjectIds: Array.isArray(user.assignedProjectIds) ? user.assignedProjectIds : [],
+    assignedSiteIds: Array.isArray(user.assignedSiteIds) ? user.assignedSiteIds : [],
     initials: initialsFromName(user.name),
     mfaEnabled: Boolean(user.mfaEnabled),
     twoFactorEnabled: Boolean(user.twoFactorEnabled),

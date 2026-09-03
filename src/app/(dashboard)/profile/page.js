@@ -6,7 +6,9 @@ import MicrosoftAuthenticatorCard from "@/Components/Account/MicrosoftAuthentica
 
 export default function Page() {
   const { persona } = useAccess();
-  const showMfa = persona?.role === ROLES.NGO_ADMIN && persona.mfaEnabled;
+  const showMfa =
+    (persona?.role === ROLES.NGO_ADMIN || persona?.role === ROLES.WORKER) &&
+    persona.mfaEnabled;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -34,6 +36,12 @@ export default function Page() {
             <dt className="text-xs text-slate-400">Organization</dt>
             <dd className="mt-1 text-sm font-medium text-slate-900">{persona?.orgName}</dd>
           </div>
+          {persona?.designationLabel ? (
+            <div>
+              <dt className="text-xs text-slate-400">Designation</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-900">{persona.designationLabel}</dd>
+            </div>
+          ) : null}
         </dl>
       </section>
 

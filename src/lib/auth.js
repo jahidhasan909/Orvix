@@ -36,6 +36,32 @@ export const auth = betterAuth({
                 defaultValue: false,
                 input: false,
             },
+            mfaEnabled: {
+                type: "boolean",
+                required: false,
+                defaultValue: false,
+                input: false,
+            },
+            extraPermissions: {
+                type: "string[]",
+                required: false,
+                input: false,
+            },
+            assignedProjectIds: {
+                type: "string[]",
+                required: false,
+                input: false,
+            },
+            assignedSiteIds: {
+                type: "string[]",
+                required: false,
+                input: false,
+            },
+            designationOther: {
+                type: "string",
+                required: false,
+                input: false,
+            },
         },
     },
     databaseHooks: {
@@ -77,9 +103,15 @@ export const auth = betterAuth({
                     ngoName: ngo?.name ?? null,
                     enabledModules: ngo?.enabledModules ?? [],
                     ngoStatus: ngo?.status ?? null,
-                    mfaEnabled: Boolean(ngo?.mfaEnabled),
+                    mfaEnabled: user.role === ROLES.NGO_ADMIN
+                        ? Boolean(ngo?.mfaEnabled)
+                        : Boolean(user.mfaEnabled),
                     twoFactorEnabled: Boolean(user.twoFactorEnabled),
                     sharePointEnabled: Boolean(ngo?.sharePointEnabled),
+                    permissions: Array.isArray(user.extraPermissions) ? user.extraPermissions : [],
+                    assignedProjectIds: Array.isArray(user.assignedProjectIds) ? user.assignedProjectIds : [],
+                    assignedSiteIds: Array.isArray(user.assignedSiteIds) ? user.assignedSiteIds : [],
+                    designationOther: user.designationOther ?? null,
                 },
             };
         }),

@@ -27,6 +27,11 @@ export const PERMISSIONS = {
   DISTRIBUTION_VIEW: "distribution.view",
   ACTIVITIES_VIEW: "activities.view",
   DATA_ENTRY_VIEW: "data_entry.view",
+  ATTENDANCE_VIEW: "attendance.view",
+  LEAVE_VIEW: "leave.view",
+  DOCUMENTS_VIEW: "documents.view",
+  RESOURCE_REQUESTS_VIEW: "resource_requests.view",
+  PROCUREMENT_VIEW: "procurement.view",
 };
 
 export const DESIGNATIONS = {
@@ -34,6 +39,7 @@ export const DESIGNATIONS = {
   FIELD_WORKER: "field_worker",
   PROJECT_WORKER: "project_worker",
   DATA_ENTRY_OFFICER: "data_entry_officer",
+  OTHER: "other",
 };
 
 const R = {
@@ -85,7 +91,6 @@ export const NAVIGATION = [
     label: "Organization",
     roles: R.NGO,
     items: [
-      { id: "ngo-profile", label: "NGO Profile / Settings", href: "/ngo/profile", icon: "Globe", roles: R.NGO },
       { id: "sharepoint", label: "SharePoint", href: "/ngo/sharepoint", icon: "Folders", roles: R.NGO, feature: "sharePoint" },
     ],
   },
@@ -106,7 +111,6 @@ export const NAVIGATION = [
         ],
       },
       { id: "workers", label: "Workers / Employees", href: "/workers", icon: "Persons", module: MODULES.WORKERS, roles: R.NGO },
-      { id: "worker-details", label: "Worker Details", href: "/workers/details", icon: "Person", module: MODULES.WORKERS, roles: R.NGO },
       { id: "attendance", label: "Attendance", href: "/attendance", icon: "Calendar", module: MODULES.ATTENDANCE, roles: R.NGO },
       { id: "leave", label: "Leave Management", href: "/leave", icon: "CalendarXmark", module: MODULES.LEAVE, roles: R.NGO },
       {
@@ -155,7 +159,7 @@ export const NAVIGATION = [
           { id: "receiving", label: "Receiving", href: "/purchases/receiving", module: MODULES.PROCUREMENT, roles: R.NGO },
         ],
       },
-      { id: "resource-requests", label: "Resource Requests", href: "/resource-requests", icon: "ListCheck", module: MODULES.RESOURCE_REQUESTS, roles: R.NGO_WORKER, workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
+      { id: "resource-requests", label: "Resource Requests", href: "/resource-requests", icon: "ListCheck", module: MODULES.RESOURCE_REQUESTS, roles: R.NGO_WORKER, permissions: [PERMISSIONS.RESOURCE_REQUESTS_VIEW], workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
       { id: "distribution", label: "Distribution", href: "/distribution", icon: "Trolley", module: MODULES.DISTRIBUTION, roles: R.NGO_WORKER, permissions: [PERMISSIONS.DISTRIBUTION_VIEW], designations: [DESIGNATIONS.STORE_LOGISTICS_OFFICER] },
     ],
   },
@@ -164,7 +168,7 @@ export const NAVIGATION = [
     label: "Records",
     roles: R.NGO_WORKER,
     items: [
-      { id: "documents", label: "Documents", href: "/documents", icon: "Folders", module: MODULES.DOCUMENTS, roles: R.NGO_WORKER, workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
+      { id: "documents", label: "Documents", href: "/documents", icon: "Folders", module: MODULES.DOCUMENTS, roles: R.NGO_WORKER, permissions: [PERMISSIONS.DOCUMENTS_VIEW], workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
       { id: "data-entry", label: "Data Entry", href: "/data-entry", icon: "PersonPencil", module: MODULES.DATA_ENTRY, roles: R.WORKER, designations: [DESIGNATIONS.DATA_ENTRY_OFFICER], permissions: [PERMISSIONS.DATA_ENTRY_VIEW] },
     ],
   },
@@ -225,12 +229,12 @@ function canSeeItem(item, user) {
     return !item.roles || item.roles.includes(ROLES.NGO_ADMIN);
   }
 
+  if (item.permissions?.length) {
+    return item.permissions.some((permission) => (user.permissions ?? []).includes(permission));
+  }
   if (item.workerDefault) return true;
   if (item.designations?.includes(user.designation)) return true;
-  if (item.permissions?.some((permission) => (user.permissions ?? []).includes(permission))) {
-    return true;
-  }
-  return !item.permissions?.length && !item.designations?.length;
+  return !item.designations?.length;
 }
 
 function filterItems(items, user) {
@@ -283,12 +287,11 @@ export const PAGE_META = {
   "/platform/audit-logs": { title: "Audit Logs", eyebrow: "Insights", description: "Security and configuration change history." },
   "/notifications": { title: "Notifications", eyebrow: "Account", description: "Alerts, assignments, and system notices." },
   "/profile": { title: "Profile", eyebrow: "Account", description: "Personal account details and preferences." },
-  "/ngo/profile": { title: "NGO Profile / Settings", eyebrow: "Organization", description: "Organization identity, locale, and workspace settings." },
   "/ngo/sharepoint": { title: "SharePoint", eyebrow: "Organization", description: "SharePoint libraries and files enabled for this NGO." },
   "/projects": { title: "Projects", eyebrow: "Operations", description: "NGO programs and field projects." },
   "/sites": { title: "Sites", eyebrow: "Operations", description: "Field sites and warehouses linked to projects." },
   "/workers": { title: "Workers / Employees", eyebrow: "Operations", description: "NGO Admins create workers here and assign designations, permissions, and sites." },
-  "/workers/details": { title: "Worker Details", eyebrow: "Operations", description: "Individual worker profile, role, and responsibilities." },
+  "/workers/new": { title: "Add Worker", eyebrow: "Operations", description: "Create a worker account for this NGO only." },
   "/attendance": { title: "Attendance", eyebrow: "Operations", description: "Team attendance records and exceptions." },
   "/attendance/me": { title: "My Attendance", eyebrow: "My Work", description: "Your personal attendance history." },
   "/leave": { title: "Leave Management", eyebrow: "Operations", description: "Leave requests, balances, and approvals." },

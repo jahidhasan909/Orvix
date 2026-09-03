@@ -18,7 +18,10 @@ export default function DashboardHeader() {
   const pathname = usePathname();
   const { persona } = useAccess();
   const [openNotes, setOpenNotes] = useState(false);
-  const meta = PAGE_META[pathname] ?? { title: "ORVIX", eyebrow: "Workspace" };
+  const meta = PAGE_META[pathname]
+    ?? (pathname.startsWith("/workers/") && pathname !== "/workers/new"
+      ? { title: "Worker Details", eyebrow: "Operations" }
+      : { title: "ORVIX", eyebrow: "Workspace" });
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-dashed border-slate-300 bg-white px-4 lg:px-6">
