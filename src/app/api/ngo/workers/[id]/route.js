@@ -51,6 +51,7 @@ async function scopedIds(ngoId, projectIds, siteIds) {
 async function ownWorker(ngoId, id) {
   return prisma.user.findFirst({
     where: { id, ngoId, role: ROLES.WORKER },
+    include: { salary: true },
   });
 }
 
@@ -76,7 +77,7 @@ export async function PATCH(request, { params }) {
   const parsed = parseWorkerBody(await request.json().catch(() => null));
   if (parsed.error) return jsonError(parsed.error);
 
-  const { password, ...fields } = parsed.data;
+  const { password, salary, ...fields } = parsed.data;
   const scoped = await scopedIds(gate.ngoId, fields.assignedProjectIds, fields.assignedSiteIds);
   if (scoped.error) return jsonError(scoped.error);
 
@@ -96,13 +97,23 @@ export async function PATCH(request, { params }) {
 
   try {
     const worker = await prisma.$transaction(async (tx) => {
-      const updated = await tx.user.update({
+      await tx.user.update({
         where: { id },
         data: {
           ...fields,
           assignedProjectIds: scoped.assignedProjectIds,
           assignedSiteIds: scoped.assignedSiteIds,
         },
+      });
+
+      await tx.workerSalary.upsert({
+        where: { userId: id },
+        create: {
+          userId: id,
+          ngoId: gate.ngoId,
+          ...salary,
+        },
+        update: salary,
       });
 
       if (password) {
@@ -129,7 +140,10 @@ export async function PATCH(request, { params }) {
         }
       }
 
-      return updated;
+      return tx.user.findUnique({
+        where: { id },
+        include: { salary: true },
+      });
     });
 
     return NextResponse.json({ item: publicWorker(worker, await ngoAssignments(gate.ngoId)) });

@@ -62,6 +62,11 @@ export default function WorkerForm({
       status: form.get("status"),
       password: form.get("password"),
       mfaEnabled: form.get("mfaEnabled") === "true",
+      salary: {
+        basicSalary: form.get("basicSalary"),
+        salaryType: form.get("salaryType"),
+        status: form.get("salaryStatus"),
+      },
       permissions,
       assignedProjectIds: projectIds,
       assignedSiteIds: siteIds,
@@ -234,7 +239,44 @@ export default function WorkerForm({
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-xs font-semibold tracking-[0.14em] text-slate-400 uppercase">5. Microsoft Authentication</p>
+        <p className="text-xs font-semibold tracking-[0.14em] text-slate-400 uppercase">5. Salary</p>
+        <p className="mt-2 text-sm text-slate-500">
+          Stored on this worker for payroll. Monthly salaries deduct a daily rate for unpaid absences. Daily salaries pay only present days.
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <label>
+            <span className={labelClass}>Basic salary</span>
+            <input
+              name="basicSalary"
+              type="number"
+              min="0"
+              step="0.01"
+              required
+              disabled={disabled}
+              defaultValue={worker?.salary?.basicSalary ?? ""}
+              className={inputClass}
+              placeholder="0.00"
+            />
+          </label>
+          <label>
+            <span className={labelClass}>Salary type</span>
+            <select name="salaryType" disabled={disabled} defaultValue={worker?.salary?.salaryType ?? "monthly"} className={inputClass}>
+              <option value="monthly">Monthly</option>
+              <option value="daily">Daily</option>
+            </select>
+          </label>
+          <label>
+            <span className={labelClass}>Salary status</span>
+            <select name="salaryStatus" disabled={disabled} defaultValue={worker?.salary?.status ?? "active"} className={inputClass}>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-xs font-semibold tracking-[0.14em] text-slate-400 uppercase">6. Microsoft Authentication</p>
         <label className="mt-4 block max-w-sm">
           <span className={labelClass}>Microsoft Authentication</span>
           <select name="mfaEnabled" disabled={disabled} defaultValue={String(Boolean(worker?.mfaEnabled))} className={inputClass}>

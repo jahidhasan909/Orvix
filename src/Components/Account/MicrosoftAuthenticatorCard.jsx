@@ -102,10 +102,10 @@ export default function MicrosoftAuthenticatorCard({ twoFactorEnabled }) {
       </p>
       <p className="mt-2 text-sm text-slate-600">
         {enabled
-          ? "Microsoft Authenticator is connected. Sign-in will ask for a 6-digit code from the app."
+          ? "Microsoft Authenticator is connected on this account. Login still uses email and password only."
           : totpURI
             ? "Scan the QR code in Microsoft Authenticator, then enter the 6-digit code to finish setup."
-            : "Multi-factor authentication is enabled for this NGO. Set up Microsoft Authenticator on this account to require a second step at login."}
+            : "Set up Microsoft Authenticator on this account. It is managed here in the app and is not required at login."}
       </p>
 
       {error ? (

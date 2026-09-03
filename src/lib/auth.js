@@ -1,14 +1,38 @@
 import { betterAuth } from "better-auth";
+import { createAuthMiddleware } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { customSession, twoFactor } from "better-auth/plugins";
 import { ROLES } from "@/lib/navigation";
 import { prisma } from "@/lib/prisma";
+
+const skipLoginTwoFactor = {
+    id: "skip-login-two-factor",
+    hooks: {
+        after: [
+            {
+                matcher: (context) =>
+                    context.path === "/sign-in/email" ||
+                    context.path === "/sign-in/username" ||
+                    context.path === "/sign-in/phone-number",
+                handler: createAuthMiddleware(async (ctx) => {
+                    if (ctx.context.newSession?.user) {
+                        ctx.context.newSession.user.twoFactorEnabled = false;
+                    }
+                }),
+            },
+        ],
+    },
+};
 
 export const auth = betterAuth({
     appName: "ORVIX",
     emailAndPassword: {
         enabled: true,
     },
+    trustedOrigins: [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
@@ -77,6 +101,7 @@ export const auth = betterAuth({
         },
     },
     plugins: [
+        skipLoginTwoFactor,
         twoFactor({
             issuer: "ORVIX",
         }),

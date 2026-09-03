@@ -1,4 +1,5 @@
 import { DESIGNATIONS } from "@/lib/navigation";
+import { parseSalaryInput, publicSalary } from "@/lib/payroll";
 import {
   designationLabel,
   sanitizeDesignation,
@@ -53,6 +54,7 @@ export function parseWorkerBody(body, { requirePassword = false } = {}) {
   const extraPermissions = sanitizePermissions(body.permissions);
   const assignedProjectIds = sanitizeIdList(body.assignedProjectIds);
   const assignedSiteIds = sanitizeIdList(body.assignedSiteIds);
+  const salaryParsed = parseSalaryInput(body.salary);
 
   if (!name) return { error: "Full name is required." };
   if (!email || !EMAIL_RE.test(email)) return { error: "A valid email is required." };
@@ -69,6 +71,7 @@ export function parseWorkerBody(body, { requirePassword = false } = {}) {
   if (!requirePassword && password && password.length < 8) {
     return { error: "Password must be at least 8 characters." };
   }
+  if (salaryParsed.error) return { error: salaryParsed.error };
 
   return {
     data: {
@@ -87,6 +90,7 @@ export function parseWorkerBody(body, { requirePassword = false } = {}) {
       assignedProjectIds,
       assignedSiteIds,
       password,
+      salary: salaryParsed.data,
     },
   };
 }
@@ -115,6 +119,7 @@ export function publicWorker(user, { projects = [], sites = [] } = {}) {
     assignedSiteIds: user.assignedSiteIds ?? [],
     assignedProjects: (user.assignedProjectIds ?? []).map((id) => projectNames[id]).filter(Boolean),
     assignedSites: (user.assignedSiteIds ?? []).map((id) => siteNames[id]).filter(Boolean),
+    salary: publicSalary(user.salary),
     createdAt: user.createdAt,
   };
 }

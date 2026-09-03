@@ -293,7 +293,7 @@ export const PAGE_META = {
   "/workers": { title: "Workers / Employees", eyebrow: "Operations", description: "NGO Admins create workers here and assign designations, permissions, and sites." },
   "/workers/new": { title: "Add Worker", eyebrow: "Operations", description: "Create a worker account for this NGO only." },
   "/attendance": { title: "Attendance", eyebrow: "Operations", description: "Team attendance records and exceptions." },
-  "/attendance/me": { title: "My Attendance", eyebrow: "My Work", description: "Your personal attendance history." },
+  "/attendance/me": { title: "My Attendance", eyebrow: "My Work", description: "Your attendance calendar, leave details, and salary impact." },
   "/leave": { title: "Leave Management", eyebrow: "Operations", description: "Leave requests, balances, and approvals." },
   "/my-assignments": { title: "My Projects / Sites", eyebrow: "My Work", description: "Projects and sites assigned to you." },
   "/activities": { title: "Assigned Activities", eyebrow: "My Work", description: "Field and project activities assigned to you." },

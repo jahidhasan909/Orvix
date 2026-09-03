@@ -56,6 +56,7 @@ export async function GET() {
     prisma.user.findMany({
       where: { ngoId: gate.ngoId, role: ROLES.WORKER },
       orderBy: { createdAt: "desc" },
+      include: { salary: true },
     }),
     ngoAssignments(gate.ngoId),
   ]);
@@ -72,7 +73,7 @@ export async function POST(request) {
   const parsed = parseWorkerBody(await request.json().catch(() => null), { requirePassword: true });
   if (parsed.error) return jsonError(parsed.error);
 
-  const { password, ...fields } = parsed.data;
+  const { password, salary, ...fields } = parsed.data;
   const scoped = await scopedIds(gate.ngoId, fields.assignedProjectIds, fields.assignedSiteIds);
   if (scoped.error) return jsonError(scoped.error);
 
@@ -115,7 +116,18 @@ export async function POST(request) {
         },
       });
 
-      return created;
+      await tx.workerSalary.create({
+        data: {
+          userId,
+          ngoId: gate.ngoId,
+          ...salary,
+        },
+      });
+
+      return tx.user.findUnique({
+        where: { id: created.id },
+        include: { salary: true },
+      });
     });
 
     const assignments = await ngoAssignments(gate.ngoId);

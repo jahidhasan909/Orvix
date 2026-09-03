@@ -63,6 +63,7 @@ export default function Page() {
                 <th className="px-5 py-3 font-semibold">Employee ID</th>
                 <th className="px-5 py-3 font-semibold">Designation</th>
                 <th className="px-5 py-3 font-semibold">Projects / Sites</th>
+                <th className="px-5 py-3 font-semibold">Salary</th>
                 <th className="px-5 py-3 font-semibold">MFA</th>
                 <th className="px-5 py-3 font-semibold">Status</th>
               </tr>
@@ -70,7 +71,7 @@ export default function Page() {
             <tbody>
               {!loading && items.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-16 text-center text-sm text-slate-400">
+                  <td colSpan={7} className="px-5 py-16 text-center text-sm text-slate-400">
                     No workers yet. Add the first employee for this organization.
                   </td>
                 </tr>
@@ -95,6 +96,11 @@ export default function Page() {
                     <td className="px-5 py-4 text-slate-600">{worker.designationLabel}</td>
                     <td className="px-5 py-4 text-slate-600">
                       {[...worker.assignedProjects, ...worker.assignedSites].join(", ") || "Unassigned"}
+                    </td>
+                    <td className="px-5 py-4 text-slate-600">
+                      {worker.salary
+                        ? `${worker.salary.basicSalary} · ${worker.salary.salaryType === "daily" ? "Daily" : "Monthly"}`
+                        : "—"}
                     </td>
                     <td className="px-5 py-4 text-slate-600">{worker.mfaEnabled ? "True" : "False"}</td>
                     <td className="px-5 py-4">
