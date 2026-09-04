@@ -5,6 +5,12 @@ import { customSession, twoFactor } from "better-auth/plugins";
 import { ROLES } from "@/lib/navigation";
 import { prisma } from "@/lib/prisma";
 
+function vercelOrigin() {
+  const host = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  if (!host) return null;
+  return `https://${String(host).replace(/^https?:\/\//, "")}`;
+}
+
 const skipLoginTwoFactor = {
     id: "skip-login-two-factor",
     hooks: {
@@ -26,6 +32,7 @@ const skipLoginTwoFactor = {
 
 export const auth = betterAuth({
     appName: "ORVIX",
+    baseURL: vercelOrigin() || process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
     emailAndPassword: {
         enabled: true,
         disableSignUp: true,
@@ -33,8 +40,10 @@ export const auth = betterAuth({
     trustedOrigins: Array.from(
         new Set(
             [
+                vercelOrigin(),
                 process.env.BETTER_AUTH_URL,
                 process.env.NEXT_PUBLIC_APP_URL,
+                "https://orvix-pi.vercel.app",
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
             ].filter(Boolean)

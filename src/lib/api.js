@@ -1,7 +1,21 @@
 const DEFAULT_API_PATH = "/api";
 
-export function apiBase() {
+function configuredBase() {
   return String(process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_PATH).replace(/\/$/, "");
+}
+
+export function apiBase() {
+  const configured = configuredBase();
+  if (typeof window !== "undefined" && configured.startsWith("http")) {
+    try {
+      if (new URL(configured).origin !== window.location.origin) {
+        return DEFAULT_API_PATH;
+      }
+    } catch {
+      return DEFAULT_API_PATH;
+    }
+  }
+  return configured || DEFAULT_API_PATH;
 }
 
 export function apiOrigin() {
