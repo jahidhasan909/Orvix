@@ -21,7 +21,13 @@ export default function DashboardHeader() {
   const meta = PAGE_META[pathname]
     ?? (pathname.startsWith("/workers/") && pathname !== "/workers/new"
       ? { title: "Worker Details", eyebrow: "Operations" }
-      : { title: "ORVIX", eyebrow: "Workspace" });
+      : pathname.startsWith("/suppliers/") && pathname !== "/suppliers/new"
+        ? { title: "Supplier", eyebrow: "Procurement" }
+        : pathname.startsWith("/purchases/orders/") && pathname !== "/purchases/orders/new"
+          ? { title: "Purchase Order", eyebrow: "Procurement" }
+          : pathname.startsWith("/purchases/") && pathname !== "/purchases/receiving" && pathname !== "/purchases/orders"
+            ? { title: "Purchase", eyebrow: "Procurement" }
+            : { title: "ORVIX", eyebrow: "Workspace" });
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-dashed border-slate-300 bg-white px-4 lg:px-6">

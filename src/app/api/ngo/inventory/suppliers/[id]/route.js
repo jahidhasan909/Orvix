@@ -9,7 +9,28 @@ function jsonError(message, status = 400) {
 }
 
 async function own(ngoId, id) {
-  return prisma.supplier.findFirst({ where: { id, ngoId } });
+  return prisma.supplier.findFirst({
+    where: { id, ngoId },
+    include: {
+      _count: { select: { receiving: true, purchaseOrders: true, purchases: true } },
+    },
+  });
+}
+
+export async function GET(_request, { params }) {
+  const gate = await requireInventory("manage");
+  if (gate.error) return jsonError(gate.error, gate.status);
+  const { id } = await params;
+  const existing = await own(gate.ngoId, id);
+  if (!existing) return jsonError("Supplier not found.", 404);
+  return NextResponse.json({
+    item: {
+      ...publicSupplier(existing),
+      receiptCount: existing._count.receiving,
+      orderCount: existing._count.purchaseOrders,
+      purchaseCount: existing._count.purchases,
+    },
+  });
 }
 
 export async function PATCH(request, { params }) {
@@ -45,7 +66,10 @@ export async function DELETE(_request, { params }) {
   const existing = await own(gate.ngoId, id);
   if (!existing) return jsonError("Supplier not found.", 404);
 
-  const used = await prisma.receivingRecord.count({ where: { ngoId: gate.ngoId, supplierId: id } });
+  const used =
+    (await prisma.receivingRecord.count({ where: { ngoId: gate.ngoId, supplierId: id } })) +
+    (await prisma.purchaseOrder.count({ where: { ngoId: gate.ngoId, supplierId: id } })) +
+    (await prisma.purchase.count({ where: { ngoId: gate.ngoId, supplierId: id } }));
   if (used > 0) {
     const item = await prisma.supplier.update({
       where: { id },
@@ -54,7 +78,7 @@ export async function DELETE(_request, { params }) {
     return NextResponse.json({
       item: publicSupplier(item),
       archived: true,
-      message: "Supplier has receipts, so it was archived instead of deleted.",
+      message: "Supplier is used on orders or receipts, so it was archived instead of deleted.",
     });
   }
   await prisma.supplier.delete({ where: { id } });

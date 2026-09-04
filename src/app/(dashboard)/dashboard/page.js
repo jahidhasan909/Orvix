@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAccess } from "@/context/AccessContext";
 import { DESIGNATIONS, ROLES } from "@/lib/navigation";
@@ -9,13 +10,6 @@ const PLATFORM_CARDS = [
   { label: "Platform admins", value: "4", href: "/platform/users" },
   { label: "Modules in review", value: "3", href: "/platform/modules" },
   { label: "Open audit events", value: "18", href: "/platform/audit-logs" },
-];
-
-const NGO_CARDS = [
-  { label: "Active projects", value: "8", href: "/projects" },
-  { label: "Workers", value: "46", href: "/workers" },
-  { label: "Pending requests", value: "5", href: "/resource-requests" },
-  { label: "Low stock items", value: "2", href: "/inventory" },
 ];
 
 const WORKER_CARDS = [
@@ -34,11 +28,31 @@ const DATA_ENTRY_CARDS = [
 
 export default function DashboardPage() {
   const { persona } = useAccess();
+  const [ngoStats, setNgoStats] = useState(null);
+
+  useEffect(() => {
+    if (persona.role !== ROLES.NGO_ADMIN) return;
+    fetch("/api/ngo/dashboard")
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) return;
+        setNgoStats(data);
+      })
+      .catch(() => {});
+  }, [persona.role]);
+
+  const ngoCards = [
+    { label: "Active projects", value: ngoStats?.projects ?? "…", href: "/projects" },
+    { label: "Workers", value: ngoStats?.workers ?? "…", href: "/workers" },
+    { label: "Pending requests", value: ngoStats?.pendingRequests ?? "…", href: "/resource-requests" },
+    { label: "Low stock items", value: ngoStats?.lowStock ?? "…", href: "/inventory" },
+  ];
+
   const cards =
     persona.role === ROLES.PLATFORM_ADMIN
       ? PLATFORM_CARDS
       : persona.role === ROLES.NGO_ADMIN
-        ? NGO_CARDS
+        ? ngoCards
         : persona.designation === DESIGNATIONS.DATA_ENTRY_OFFICER
           ? DATA_ENTRY_CARDS
           : WORKER_CARDS;
