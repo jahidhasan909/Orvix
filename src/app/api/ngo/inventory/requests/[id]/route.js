@@ -4,6 +4,7 @@ import { ROLES } from "@/lib/navigation";
 import { asString } from "@/lib/worker-payload";
 import { requireInventory } from "@/lib/require-inventory";
 import { TX, applyStockChange, nameMaps, publicRequest } from "@/lib/inventory";
+import { notifyUser } from "@/lib/notify";
 
 function jsonError(message, status = 400) {
   return NextResponse.json({ error: message }, { status });
@@ -46,6 +47,12 @@ export async function PATCH(request, { params }) {
       data: { status: "approved", decisionNote, decidedBy: gate.userId },
       include: { inventoryItem: { select: { name: true, sku: true, quantity: true } } },
     });
+    await notifyUser(prisma, {
+      ngoId: gate.ngoId,
+      userId: existing.requestedById,
+      title: "Resource request approved",
+      body: `${existing.item} × ${existing.quantity} was approved.`,
+    });
     return NextResponse.json({ item: publicRequest(item, await nameMaps(prisma, gate.ngoId)) });
   }
 
@@ -55,6 +62,12 @@ export async function PATCH(request, { params }) {
       where: { id },
       data: { status: "rejected", decisionNote, decidedBy: gate.userId },
       include: { inventoryItem: { select: { name: true, sku: true, quantity: true } } },
+    });
+    await notifyUser(prisma, {
+      ngoId: gate.ngoId,
+      userId: existing.requestedById,
+      title: "Resource request rejected",
+      body: `${existing.item} × ${existing.quantity} was rejected.`,
     });
     return NextResponse.json({ item: publicRequest(item, await nameMaps(prisma, gate.ngoId)) });
   }
@@ -105,6 +118,12 @@ export async function PATCH(request, { params }) {
       return jsonError("Could not issue the request.", 500);
     }
 
+    await notifyUser(prisma, {
+      ngoId: gate.ngoId,
+      userId: existing.requestedById,
+      title: "Resource issued",
+      body: `${existing.item} × ${existing.quantity} has been issued to you.`,
+    });
     const item = await own(gate.ngoId, id);
     return NextResponse.json({ item: publicRequest(item, await nameMaps(prisma, gate.ngoId)) });
   }

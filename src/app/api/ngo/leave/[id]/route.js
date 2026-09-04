@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { asString } from "@/lib/worker-payload";
 import { requireNgoAdmin } from "@/lib/require-ngo-admin";
 import { publicLeave } from "@/lib/leave";
+import { notifyUser } from "@/lib/notify";
 
 function jsonError(message, status = 400) {
   return NextResponse.json({ error: message }, { status });
@@ -22,10 +23,17 @@ export async function PATCH(request, { params }) {
   const action = asString((await request.json().catch(() => null))?.action);
   if (action !== "approve" && action !== "reject") return jsonError("Use approve or reject.");
 
+  const nextStatus = action === "approve" ? "approved" : "rejected";
   const item = await prisma.leaveRequest.update({
     where: { id },
-    data: { status: action === "approve" ? "approved" : "rejected" },
+    data: { status: nextStatus },
     include: { user: { select: { name: true } } },
+  });
+  await notifyUser(prisma, {
+    ngoId: gate.ngoId,
+    userId: existing.userId,
+    title: `Leave ${nextStatus}`,
+    body: `Your ${existing.type} leave request was ${nextStatus}.`,
   });
   return NextResponse.json({ item: publicLeave(item) });
 }

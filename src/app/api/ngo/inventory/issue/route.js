@@ -19,8 +19,13 @@ export async function GET() {
   const gate = await requireInventory("view");
   if (gate.error) return jsonError(gate.error, gate.status);
 
+  const where = { ngoId: gate.ngoId };
+  if (gate.role !== "ngo_admin" && !gate.canIssue && !gate.canManage) {
+    where.workerId = gate.userId;
+  }
+
   const items = await prisma.distributionRecord.findMany({
-    where: { ngoId: gate.ngoId },
+    where,
     orderBy: { date: "desc" },
   });
   return NextResponse.json({

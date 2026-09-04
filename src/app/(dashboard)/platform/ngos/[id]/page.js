@@ -131,7 +131,7 @@ export default function Page() {
   };
 
   if (loading) {
-    return <p className="mx-auto max-w-4xl text-sm text-slate-500">Loading NGO…</p>;
+    return <p className="flex items-center gap-2 py-16 text-sm text-slate-500"><span className="orvix-spinner" />Loading NGO…</p>;
   }
 
   if (!ngo) {

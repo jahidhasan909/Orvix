@@ -24,7 +24,7 @@ function NavLink({ item, active, collapsed, onNavigate }) {
       href={item.href}
       title={collapsed ? item.label : undefined}
       onClick={onNavigate}
-      className={`group flex items-center gap-3 rounded-r-lg px-3 py-2 text-sm transition-colors border-l-2 ${
+      className={`group flex cursor-pointer items-center gap-3 rounded-r-lg px-3 py-2 text-sm transition-colors border-l-2 ${
         active
           ? "border-[#2075fe] bg-[#2075fe]/10 text-[#2075fe]"
           : "border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -182,7 +182,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse }) {
             }
           }}
           title="Log out"
-          className={`flex w-full items-center gap-3 rounded-xl p-2 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600 ${collapsed ? "justify-center" : ""}`}
+          className={`flex w-full cursor-pointer items-center gap-3 rounded-xl p-2 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600 ${collapsed ? "justify-center" : ""}`}
         >
           <LogOut className="size-[18px] shrink-0" />
           {!collapsed && <span>Log out</span>}

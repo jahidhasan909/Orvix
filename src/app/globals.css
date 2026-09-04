@@ -1,9 +1,58 @@
 @import "tailwindcss";
 @import "@heroui/styles/css";
 
+:root {
+  --orvix-blue: #2176fe;
+}
+
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+[role="button"],
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+[type="button"]:disabled,
+[type="submit"]:disabled,
+[type="reset"]:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+@keyframes orvix-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.orvix-spinner {
+  display: inline-block;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+  border: 2px solid rgb(33 118 254 / 0.2);
+  border-top-color: var(--orvix-blue);
+  border-radius: 999px;
+  animation: orvix-spin 0.7s linear infinite;
+}
+
+.orvix-spinner-lg {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-width: 3px;
+}
+
+.orvix-spinner-on-dark {
+  border-color: rgb(255 255 255 / 0.35);
+  border-top-color: #fff;
+}
+
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgb(51 65 85) transparent;
+  scrollbar-color: rgb(203 213 225) transparent;
 }
 
 .sidebar-scroll::-webkit-scrollbar {
@@ -11,6 +60,31 @@
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgb(51 65 85);
+  background: rgb(203 213 225);
   border-radius: 999px;
-} 
+}
+
+main > * {
+  max-width: none !important;
+  margin-inline: 0 !important;
+}
+
+main .rounded-2xl.border-slate-200,
+main .rounded-xl.border-slate-200 {
+  border-style: dashed;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 3px rgb(15 23 42 / 0.04);
+}
+
+main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+main select,
+main textarea {
+  border-color: rgb(226 232 240);
+}
+
+main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):focus,
+main select:focus,
+main textarea:focus {
+  border-color: var(--orvix-blue);
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(33 118 254 / 0.18);
+}

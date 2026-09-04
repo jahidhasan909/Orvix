@@ -75,7 +75,7 @@ function NewSiteForm() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<p className="text-sm text-slate-400">Loading…</p>}>
+    <Suspense fallback={<p className="flex items-center gap-2 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading…</p>}>
       <NewSiteForm />
     </Suspense>
   );

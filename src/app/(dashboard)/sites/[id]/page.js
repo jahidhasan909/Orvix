@@ -82,7 +82,7 @@ export default function Page() {
     router.push("/sites");
   };
 
-  if (loading) return <p className="text-sm text-slate-400">Loading site…</p>;
+  if (loading) return <p className="flex items-center gap-2 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading site…</p>;
   if (!site) return <p className="text-sm text-red-600">{error || "Site not found."}</p>;
 
   if (editing) {

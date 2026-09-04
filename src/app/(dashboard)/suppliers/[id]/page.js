@@ -65,7 +65,7 @@ export default function Page() {
     router.push("/suppliers");
   };
 
-  if (loading) return <p className="px-1 py-8 text-sm text-slate-400">Loading supplier…</p>;
+  if (loading) return <p className="flex items-center gap-2 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading supplier…</p>;
   if (!item) {
     return (
       <div className="mx-auto max-w-3xl space-y-4">

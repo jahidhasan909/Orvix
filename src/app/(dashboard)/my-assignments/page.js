@@ -39,7 +39,7 @@ export default function Page() {
           <p className="text-sm font-medium text-slate-700">Assigned projects</p>
         </div>
         {loading ? (
-          <p className="px-5 py-8 text-sm text-slate-400">Loading…</p>
+          <p className="flex items-center justify-center gap-2 px-5 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading…</p>
         ) : projects.length === 0 ? (
           <p className="px-5 py-8 text-sm text-slate-400">No projects assigned yet.</p>
         ) : (
@@ -69,7 +69,7 @@ export default function Page() {
           <p className="text-sm font-medium text-slate-700">Assigned sites</p>
         </div>
         {loading ? (
-          <p className="px-5 py-8 text-sm text-slate-400">Loading…</p>
+          <p className="flex items-center justify-center gap-2 px-5 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading…</p>
         ) : sites.length === 0 ? (
           <p className="px-5 py-8 text-sm text-slate-400">No sites assigned yet.</p>
         ) : (

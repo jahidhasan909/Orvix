@@ -28,6 +28,7 @@ export const auth = betterAuth({
     appName: "ORVIX",
     emailAndPassword: {
         enabled: true,
+        disableSignUp: true,
     },
     trustedOrigins: [
         "http://localhost:3000",

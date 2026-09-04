@@ -80,7 +80,7 @@ export default function Page() {
     router.push("/projects");
   };
 
-  if (loading) return <p className="text-sm text-slate-400">Loading project…</p>;
+  if (loading) return <p className="flex items-center gap-2 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading project…</p>;
   if (!project) return <p className="text-sm text-red-600">{error || "Project not found."}</p>;
 
   if (editing) {

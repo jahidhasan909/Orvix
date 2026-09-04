@@ -12,23 +12,18 @@ const PLATFORM_CARDS = [
   { label: "Open audit events", value: "18", href: "/platform/audit-logs" },
 ];
 
-const WORKER_CARDS = [
-  { label: "My attendance", value: "Present", href: "/attendance/me" },
-  { label: "Assigned sites", value: "2", href: "/my-assignments" },
-  { label: "Open requests", value: "1", href: "/resource-requests" },
-  { label: "Notifications", value: "3", href: "/notifications" },
-];
-
-const DATA_ENTRY_CARDS = [
-  { label: "Assigned forms", value: "2", href: "/data-entry" },
-  { label: "Records in queue", value: "192", href: "/data-entry" },
-  { label: "Notifications", value: "3", href: "/notifications" },
-  { label: "My profile", value: "Open", href: "/profile" },
-];
+const ATTENDANCE_LABELS = {
+  present: "Present",
+  absent: "Absent",
+  leave: "Leave",
+  holiday: "Holiday",
+  unmarked: "Unmarked",
+};
 
 export default function DashboardPage() {
   const { persona } = useAccess();
   const [ngoStats, setNgoStats] = useState(null);
+  const [overview, setOverview] = useState(null);
 
   useEffect(() => {
     if (persona.role !== ROLES.NGO_ADMIN) return;
@@ -37,6 +32,17 @@ export default function DashboardPage() {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) return;
         setNgoStats(data);
+      })
+      .catch(() => {});
+  }, [persona.role]);
+
+  useEffect(() => {
+    if (persona.role !== ROLES.WORKER) return;
+    fetch("/api/me/overview")
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) return;
+        setOverview(data);
       })
       .catch(() => {});
   }, [persona.role]);
@@ -54,8 +60,18 @@ export default function DashboardPage() {
       : persona.role === ROLES.NGO_ADMIN
         ? ngoCards
         : persona.designation === DESIGNATIONS.DATA_ENTRY_OFFICER
-          ? DATA_ENTRY_CARDS
-          : WORKER_CARDS;
+          ? [
+              { label: "Assigned forms", value: overview?.forms ?? "…", href: "/data-entry" },
+              { label: "Open records", value: overview?.queuedRecords ?? "…", href: "/data-entry" },
+              { label: "Notifications", value: overview?.unreadNotifications ?? "…", href: "/notifications" },
+              { label: "My profile", value: "Open", href: "/profile" },
+            ]
+          : [
+              { label: "My attendance", value: overview ? ATTENDANCE_LABELS[overview.attendance] || overview.attendance : "…", href: "/attendance/me" },
+              { label: "Assigned sites", value: overview?.assignedSites ?? "…", href: "/my-assignments" },
+              { label: "Open requests", value: overview?.pendingRequests ?? "…", href: "/resource-requests" },
+              { label: "Notifications", value: overview?.unreadNotifications ?? "…", href: "/notifications" },
+            ];
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -72,7 +88,7 @@ export default function DashboardPage() {
           <Link
             key={card.label}
             href={card.href}
-            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-violet-200 hover:bg-violet-50/40"
+            className="rounded-2xl border border-dashed border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-[#2176fe]/40 hover:bg-[#2176fe]/5"
           >
             <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">{card.label}</p>
             <p className="mt-2 text-2xl font-semibold text-slate-900">{card.value}</p>

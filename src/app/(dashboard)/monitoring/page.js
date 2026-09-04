@@ -33,7 +33,7 @@ export default function Page() {
         <p className="mt-1 text-sm text-slate-500">Live operational follow-up for this NGO only.</p>
       </div>
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
-      {loading ? <p className="text-sm text-slate-400">Loading…</p> : null}
+      {loading ? <p className="flex items-center gap-2 text-sm text-slate-400"><span className="orvix-spinner" />Loading…</p> : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (

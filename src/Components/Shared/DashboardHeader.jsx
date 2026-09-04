@@ -30,7 +30,7 @@ export default function DashboardHeader() {
             : { title: "ORVIX", eyebrow: "Workspace" });
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-dashed border-slate-300 bg-white px-4 lg:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-dashed border-slate-300 bg-white px-5">
       <MobileNav />
 
       <div className="min-w-0 flex-1">
@@ -49,14 +49,14 @@ export default function DashboardHeader() {
         <button
           type="button"
           onClick={() => setOpenNotes((value) => !value)}
-          className="relative inline-flex size-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+          className="relative inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
           aria-label="Notifications"
         >
           <Bell className="size-4" />
           <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-[#2075fe]" />
         </button>
         {openNotes && (
-          <div className="absolute top-12 right-0 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+          <div className="absolute top-12 right-0 w-80 overflow-hidden rounded-xl border border-dashed border-slate-200 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <p className="text-sm font-semibold text-slate-900">Notifications</p>
               <Link href="/notifications" onClick={() => setOpenNotes(false)} className="text-xs font-medium text-[#2075fe]">

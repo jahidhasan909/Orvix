@@ -161,7 +161,7 @@ export default function Page() {
       ) : null}
 
       {loading && !data ? (
-        <p className="text-sm text-slate-400">Loading your attendance…</p>
+        <p className="flex items-center justify-center gap-2 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading your attendance…</p>
       ) : (
         <WorkerAttendanceCalendar
           from={cursor.from}

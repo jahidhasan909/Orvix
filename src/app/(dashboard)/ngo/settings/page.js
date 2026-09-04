@@ -47,7 +47,7 @@ export default function Page() {
     setItem(data.item);
   };
 
-  if (loading) return <p className="px-1 py-8 text-sm text-slate-400">Loading NGO settings…</p>;
+  if (loading) return <p className="flex items-center gap-2 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading NGO settings…</p>;
   if (!item) {
     return <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error || "NGO not found."}</div>;
   }

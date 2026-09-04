@@ -52,7 +52,7 @@ export default function Page() {
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
           <p className="text-sm font-medium text-slate-700">Projects in this NGO</p>
-          <p className="text-xs text-slate-400">{loading ? "Loading…" : `${items.length} total`}</p>
+          <p className="text-xs text-slate-400">{loading ? <span className="inline-flex items-center gap-2"><span className="orvix-spinner" />Loading…</span> : `${items.length} total`}</p>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">

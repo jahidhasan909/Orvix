@@ -1,143 +1,156 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Input, Button, Link } from '@heroui/react';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { authClient } from '@/lib/auth-client';
+import { useState } from "react";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { authClient } from "@/lib/auth-client";
 
-const LoginPage = () => {
-    const [isVisible, setIsVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [authError, setAuthError] = useState('');
+const LOTTIE_SRC = "https://lottie.host/a87aa979-e336-4418-9b49-de3bd19f0ee9/IfQw4w5Qmm.lottie";
 
-    const toggleVisibility = () => setIsVisible(!isVisible);
+const inputClass =
+  "mt-1.5 w-full rounded-lg border border-slate-200 bg-white py-2.5 pr-3 pl-10 text-sm text-slate-900 outline-none focus:border-[#2176fe] focus:ring-2 focus:ring-[#2176fe]/20";
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm();
+function BrandMark({ size = 44 }) {
+  return (
+    <div className="flex items-center gap-3">
+      <Image
+        src="/orvix-logo.png"
+        alt="ORVIX"
+        width={size}
+        height={size}
+        className="h-auto w-11 shrink-0"
+        priority
+      />
+      <div className="min-w-0">
+        <p className="truncate text-lg font-bold tracking-wide text-slate-900">ORVIX</p>
+        <p className="truncate text-xs text-slate-500">NGO Operations</p>
+      </div>
+    </div>
+  );
+}
 
-    const onSubmit = async (data) => {
-        setAuthError('');
-        setIsLoading(true);
+export default function LoginPage() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
 
-        await authClient.signOut().catch(() => {});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-        const { error } = await authClient.signIn.email({
-            email: data.email,
-            password: data.password,
-        });
+  const onSubmit = async (data) => {
+    setAuthError("");
+    setIsLoading(true);
 
-        setIsLoading(false);
+    await authClient.signOut().catch(() => {});
 
-        if (error) {
-            setAuthError(error.message || "Login failed. Please check your credentials.");
-            return;
-        }
+    const { error } = await authClient.signIn.email({
+      email: data.email,
+      password: data.password,
+    });
 
-        window.location.href = "/dashboard";
-    };
+    setIsLoading(false);
 
-    return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 p-6">
-            <div className="w-full max-w-md rounded-2xl bg-slate-900/60 p-8 shadow-xl backdrop-blur-xl border border-slate-800">
-                
-                <div className="mb-6 text-center">
-                    <h2 className="text-3xl font-bold tracking-tight text-white">
-                        Welcome Back
-                    </h2>
-                    <p className="text-sm text-slate-400 mt-2">
-                        Log in using Better Auth & HeroUI
-                    </p>
-                </div>
+    if (error) {
+      setAuthError(error.message || "Login failed. Please check your credentials.");
+      return;
+    }
 
-                {authError && (
-                    <div className="mb-4 rounded-xl bg-danger-500/10 border border-danger-500/30 p-3 text-center text-sm text-danger">
-                        {authError}
-                    </div>
-                )}
+    window.location.href = "/dashboard";
+  };
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                    <div>
-                        <Input
-                            isRequired
-                            type="email"
-                            label="Email Address"
-                            placeholder="Enter your email"
-                            variant="bordered"
-                            startContent={<Mail className="text-slate-400" size={18} />}
-                            {...register('email', { 
-                                required: 'Email is required',
-                                pattern: {
-                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                    message: 'Invalid email address'
-                                }
-                            })}
-                            isInvalid={!!errors.email}
-                            errorMessage={errors.email?.message}
-                            classNames={{
-                                label: "text-slate-300",
-                                input: "text-white",
-                                inputWrapper: "border-slate-700 hover:border-purple-500 focus-within:!border-purple-500"
-                            }}
-                        />
-                    </div>
-
-                    <div>
-                        <Input
-                            isRequired
-                            label="Password"
-                            placeholder="Enter your password"
-                            variant="bordered"
-                            startContent={<Lock className="text-slate-400" size={18} />}
-                            endContent={
-                                <button type="button" onClick={toggleVisibility} className="focus:outline-none">
-                                    {isVisible ? (
-                                        <EyeOff className="text-slate-400" size={18} />
-                                    ) : (
-                                        <Eye className="text-slate-400" size={18} />
-                                    )}
-                                </button>
-                            }
-                            type={isVisible ? "text" : "password"}
-                            {...register('password', { 
-                                required: 'Password is required'
-                            })}
-                            isInvalid={!!errors.password}
-                            errorMessage={errors.password?.message}
-                            classNames={{
-                                label: "text-slate-300",
-                                input: "text-white",
-                                inputWrapper: "border-slate-700 hover:border-purple-500 focus-within:!border-purple-500"
-                            }}
-                        />
-                    </div>
-
-                    <Button 
-                        type="submit" 
-                        color="secondary" 
-                        isLoading={isLoading}
-                        className="w-full font-semibold mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
-                    >
-                        {isLoading ? 'Logging in...' : 'Log In'}
-                    </Button>
-                </form>
-
-                <p className="text-center text-sm text-slate-400 mt-6">
-                    Need a platform admin account?{' '}
-                    <Link href="/registration" size="sm" className="text-purple-400 font-medium">
-                        Register
-                    </Link>
-                </p>
-                <p className="text-center text-xs text-slate-500 mt-2">
-                    NGO Admin and worker accounts are created by an administrator, not through public registration.
-                </p>
-
-            </div>
+  return (
+    <div className="flex min-h-screen flex-col bg-slate-50 lg:flex-row">
+      <section className="relative flex flex-1 flex-col">
+        <div className="absolute top-0 left-0 z-10 px-6 py-5 sm:px-8 sm:py-6">
+          <BrandMark />
         </div>
-    );
-};
+        <div className="flex flex-1 items-center justify-center px-6 py-24 sm:px-10">
+          <div className="h-[min(420px,52vh)] w-full max-w-lg">
+            <DotLottieReact src={LOTTIE_SRC} loop autoplay className="h-full w-full" />
+          </div>
+        </div>
+      </section>
 
-export default LoginPage;
+      <div className="hidden self-stretch border-l-4 border-dashed border-[#2176fe] lg:block" aria-hidden />
+      <div className="border-t-4 border-dashed border-[#2176fe] lg:hidden" aria-hidden />
+
+      <section className="flex w-full items-center justify-center bg-white px-6 py-12 lg:w-[min(560px,44%)] lg:shrink-0 lg:px-12">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 lg:hidden">
+            <BrandMark size={36} />
+          </div>
+          <div className="mb-8">
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Welcome back</h1>
+            <p className="mt-2 text-sm text-slate-500">Sign in to your ORVIX workspace.</p>
+          </div>
+
+          {authError ? (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-center text-sm text-red-700">
+              {authError}
+            </div>
+          ) : null}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Email Address</span>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                  className={inputClass}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: "Invalid email address",
+                    },
+                  })}
+                />
+              </div>
+              {errors.email ? <p className="mt-1 text-xs text-red-600">{errors.email.message}</p> : null}
+            </label>
+
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Password</span>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type={isVisible ? "text" : "password"}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  className={`${inputClass} pr-10`}
+                  {...register("password", { required: "Password is required" })}
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsVisible((open) => !open)}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  aria-label={isVisible ? "Hide password" : "Show password"}
+                >
+                  {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password ? <p className="mt-1 text-xs text-red-600">{errors.password.message}</p> : null}
+            </label>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="mt-2 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#2176fe] py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isLoading ? <span className="orvix-spinner orvix-spinner-on-dark" /> : null}
+              {isLoading ? "Logging in..." : "Log In"}
+            </button>
+          </form>
+        </div>
+      </section>
+    </div>
+  );
+}

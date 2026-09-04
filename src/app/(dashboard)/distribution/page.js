@@ -14,19 +14,18 @@ export default function Page() {
   const load = () => {
     Promise.all([
       fetch("/api/ngo/inventory/items").then(async (response) => (await response.json()).items ?? []),
-      fetch("/api/ngo/workers").then(async (response) => response.ok ? (await response.json()).items ?? [] : []),
-      fetch("/api/ngo/assignments").then(async (response) => response.ok ? response.json() : { projects: [], sites: [] }),
+      fetch("/api/ngo/directory").then(async (response) => (response.ok ? response.json() : { workers: [], projects: [], sites: [] })),
       fetch("/api/ngo/inventory/issue").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load issues.");
         return data.items ?? [];
       }),
     ])
-      .then(([catalog, workerRows, assignments, rows]) => {
+      .then(([catalog, directory, rows]) => {
         setItems(catalog);
-        setWorkers(workerRows);
-        setProjects(assignments.projects ?? []);
-        setSites(assignments.sites ?? []);
+        setWorkers(directory.workers ?? []);
+        setProjects(directory.projects ?? []);
+        setSites(directory.sites ?? []);
         setList(rows);
       })
       .catch((loadError) => setError(loadError.message));

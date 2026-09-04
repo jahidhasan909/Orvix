@@ -116,7 +116,7 @@ export default function Page() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-5 py-16 text-center text-sm text-slate-400">Loading…</td>
+                <td colSpan={5} className="px-5 py-16 text-center text-sm text-slate-400"><span className="inline-flex items-center justify-center gap-2"><span className="orvix-spinner" />Loading…</span></td>
               </tr>
             ) : items.length === 0 ? (
               <tr>

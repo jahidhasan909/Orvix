@@ -88,7 +88,7 @@ function ReceivingPage() {
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
       {success ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</div> : null}
 
-      {loading ? <p className="text-sm text-slate-400">Loading eligible purchase orders…</p> : null}
+      {loading ? <p className="flex items-center gap-2 text-sm text-slate-400"><span className="orvix-spinner" />Loading eligible purchase orders…</p> : null}
 
       {!loading && orders.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center text-sm text-slate-400">
@@ -197,7 +197,7 @@ function ReceivingPage() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<p className="px-1 py-8 text-sm text-slate-400">Loading receiving…</p>}>
+    <Suspense fallback={<p className="flex items-center gap-2 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading receiving…</p>}>
       <ReceivingPage />
     </Suspense>
   );

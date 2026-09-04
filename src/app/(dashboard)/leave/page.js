@@ -3,8 +3,12 @@
 import { useEffect, useState } from "react";
 import { LEAVE_TYPES } from "@/lib/leave";
 import { StatusBadge } from "@/Components/Procurement/forms";
+import { useAccess } from "@/context/AccessContext";
+import { ROLES } from "@/lib/navigation";
 
 export default function Page() {
+  const { persona } = useAccess();
+  const isAdmin = persona?.role === ROLES.NGO_ADMIN;
   const [items, setItems] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [status, setStatus] = useState("");
@@ -21,7 +25,9 @@ export default function Page() {
         if (!response.ok) throw new Error(data.error || "Could not load leave.");
         return data.items ?? [];
       }),
-      fetch("/api/ngo/workers").then(async (response) => (await response.json()).items ?? []),
+      isAdmin
+        ? fetch("/api/ngo/workers").then(async (response) => (await response.json()).items ?? [])
+        : Promise.resolve([]),
     ])
       .then(([rows, workerRows]) => {
         setItems(rows);
@@ -32,7 +38,7 @@ export default function Page() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, [status]);
+  useEffect(() => { load(); }, [status, isAdmin]);
 
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -43,7 +49,7 @@ export default function Page() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: form.get("userId"),
+        userId: isAdmin ? form.get("userId") : persona?.id,
         type: form.get("type"),
         days: form.get("days"),
         startsOn: form.get("startsOn"),
@@ -77,19 +83,23 @@ export default function Page() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Leave Management</h2>
-        <p className="mt-1 text-sm text-slate-500">Approved leave is used in payroll. Create and approve requests for this NGO only.</p>
+        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{isAdmin ? "Leave Management" : "My Leave"}</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          {isAdmin ? "Approved leave is used in payroll. Create and approve requests for this NGO only." : "Apply for leave and track pending, approved, and rejected requests."}
+        </p>
       </div>
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
 
       <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
-        <label>
-          <span className="text-sm font-medium">Worker</span>
-          <select name="userId" required className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
-            <option value="">Select worker</option>
-            {workers.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
-          </select>
-        </label>
+        {isAdmin ? (
+          <label>
+            <span className="text-sm font-medium">Worker</span>
+            <select name="userId" required className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+              <option value="">Select worker</option>
+              {workers.map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
+            </select>
+          </label>
+        ) : null}
         <label>
           <span className="text-sm font-medium">Type</span>
           <select name="type" required className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
@@ -110,7 +120,7 @@ export default function Page() {
         </label>
         <div className="sm:col-span-2 lg:col-span-5 flex justify-end">
           <button type="submit" disabled={saving} className="rounded-lg bg-[#2075fe] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
-            {saving ? "Saving…" : "Create leave request"}
+            {saving ? "Saving…" : isAdmin ? "Create leave request" : "Apply for leave"}
           </button>
         </div>
       </form>
@@ -153,7 +163,7 @@ export default function Page() {
                 </td>
                 <td className="px-5 py-3"><StatusBadge status={row.status} labels={{ pending: "Pending", approved: "Approved", rejected: "Rejected" }} /></td>
                 <td className="px-5 py-3 text-right">
-                  {row.status === "pending" ? (
+                  {isAdmin && row.status === "pending" ? (
                     <>
                       <button type="button" onClick={() => act(row.id, "approve")} className="mr-2 text-sm font-semibold text-[#2075fe]">Approve</button>
                       <button type="button" onClick={() => act(row.id, "reject")} className="text-sm text-slate-500">Reject</button>

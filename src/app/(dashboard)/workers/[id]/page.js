@@ -70,7 +70,7 @@ export default function Page() {
   };
 
   if (loading) {
-    return <p className="text-sm text-slate-400">Loading worker…</p>;
+    return <p className="flex items-center gap-2 py-16 text-sm text-slate-400"><span className="orvix-spinner" />Loading worker…</p>;
   }
 
   if (!worker) {

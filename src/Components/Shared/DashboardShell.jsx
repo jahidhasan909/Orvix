@@ -23,7 +23,14 @@ function Shell({ children }) {
   };
 
   if (isPending || !persona) {
-    return <div className="min-h-screen bg-slate-50" />;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-3 text-slate-500">
+          <span className="orvix-spinner orvix-spinner-lg" />
+          <p className="text-sm">Loading workspace…</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -31,7 +38,7 @@ function Shell({ children }) {
       <DesktopSidebar collapsed={collapsed} onToggleCollapse={toggle} />
       <div className="flex min-w-0 flex-1 flex-col">
         <DashboardHeader />
-        <main className="flex-1 p-4 lg:p-8">{children}</main>
+        <main className="flex-1 p-5">{children}</main>
       </div>
     </div>
   );
