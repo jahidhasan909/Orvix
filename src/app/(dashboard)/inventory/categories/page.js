@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -9,7 +10,7 @@ export default function Page() {
   const [editing, setEditing] = useState(null);
 
   const load = () => {
-    fetch("/api/ngo/inventory/categories")
+    api("/ngo/inventory/categories")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load categories.");
@@ -26,7 +27,7 @@ export default function Page() {
     setError("");
     const form = new FormData(event.currentTarget);
     const body = { name: form.get("name"), description: form.get("description"), status: form.get("status") };
-    const response = await fetch(editing ? `/api/ngo/inventory/categories/${editing.id}` : "/api/ngo/inventory/categories", {
+    const response = await api(editing ? `/ngo/inventory/categories/${editing.id}` : "/ngo/inventory/categories", {
       method: editing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -44,7 +45,7 @@ export default function Page() {
 
   const onDelete = async (row) => {
     if (!window.confirm("Delete this category? Categories in use will be archived.")) return;
-    const response = await fetch(`/api/ngo/inventory/categories/${row.id}`, { method: "DELETE" });
+    const response = await api(`/ngo/inventory/categories/${row.id}`, { method: "DELETE" });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) setError(data.error || "Could not delete.");
     else if (data.message) setError(data.message);

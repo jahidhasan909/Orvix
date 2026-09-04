@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useAccess } from "@/context/AccessContext";
 import { ROLES } from "@/lib/navigation";
@@ -28,13 +29,13 @@ export default function Page() {
     setLoading(true);
     const extras = isAdmin
       ? [
-          fetch("/api/ngo/projects").then(async (response) => (await response.json()).items ?? []),
-          fetch("/api/ngo/workers").then(async (response) => (await response.json()).items ?? []),
-          fetch("/api/ngo/inventory/suppliers").then(async (response) => (await response.json()).items ?? []),
+          api("/ngo/projects").then(async (response) => (await response.json()).items ?? []),
+          api("/ngo/workers").then(async (response) => (await response.json()).items ?? []),
+          api("/ngo/inventory/suppliers").then(async (response) => (await response.json()).items ?? []),
         ]
       : [Promise.resolve([]), Promise.resolve([]), Promise.resolve([])];
     Promise.all([
-      fetch("/api/ngo/documents").then(async (response) => {
+      api("/ngo/documents").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load documents.");
         return data.items ?? [];
@@ -59,7 +60,7 @@ export default function Page() {
     setSaving(true);
     setError("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/ngo/documents", {
+    const response = await api("/ngo/documents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -83,7 +84,7 @@ export default function Page() {
 
   const onDelete = async (id) => {
     if (!window.confirm("Delete this document record?")) return;
-    const response = await fetch(`/api/ngo/documents/${id}`, { method: "DELETE" });
+    const response = await api(`/ngo/documents/${id}`, { method: "DELETE" });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
       setError(data.error || "Could not delete the document.");

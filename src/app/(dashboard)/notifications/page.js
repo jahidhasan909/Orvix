@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -8,7 +9,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
 
   const load = () => {
-    fetch("/api/notifications/me")
+    api("/notifications/me")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load notifications.");
@@ -22,7 +23,7 @@ export default function Page() {
   useEffect(() => { load(); }, []);
 
   const mark = async (id) => {
-    const response = await fetch("/api/notifications/me", {
+    const response = await api("/notifications/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(id ? { id } : { action: "readAll" }),

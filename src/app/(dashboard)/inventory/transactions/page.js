@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -12,7 +13,7 @@ export default function Page() {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (type) params.set("type", type);
-    fetch(`/api/ngo/inventory/transactions?${params}`)
+    api(`/ngo/inventory/transactions?${params}`)
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load transactions.");

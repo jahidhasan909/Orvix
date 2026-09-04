@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/Components/Procurement/forms";
@@ -16,7 +17,7 @@ export default function Page() {
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
     if (status) params.set("status", status);
-    fetch(`/api/ngo/procurement/orders${params.toString() ? `?${params}` : ""}`)
+    api(`/ngo/procurement/orders${params.toString() ? `?${params}` : ""}`)
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load purchase orders.");

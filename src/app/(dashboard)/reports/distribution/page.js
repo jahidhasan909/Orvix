@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -7,7 +8,7 @@ export default function Page() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/ngo/inventory/issue")
+    api("/ngo/inventory/issue")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load distribution report.");

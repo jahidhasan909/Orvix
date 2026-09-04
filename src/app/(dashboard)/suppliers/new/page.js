@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -13,7 +14,7 @@ export default function Page() {
   const onSubmit = async (body) => {
     setError("");
     setSaving(true);
-    const response = await fetch("/api/ngo/inventory/suppliers", {
+    const response = await api("/ngo/inventory/suppliers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

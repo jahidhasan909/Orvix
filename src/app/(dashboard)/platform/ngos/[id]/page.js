@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -35,7 +36,7 @@ export default function Page() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch(`/api/platform/ngos/${id}`)
+    api(`/platform/ngos/${id}`)
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load NGO.");
@@ -113,7 +114,7 @@ export default function Page() {
         : null,
     };
 
-    const response = await fetch(`/api/platform/ngos/${id}`, {
+    const response = await api(`/platform/ngos/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

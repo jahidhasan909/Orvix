@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SiteForm } from "@/Components/Projects/ProjectForm";
@@ -16,12 +17,12 @@ function NewSiteForm() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/ngo/projects").then(async (response) => {
+      api("/ngo/projects").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load projects.");
         return data.items ?? [];
       }),
-      fetch("/api/ngo/workers").then(async (response) => {
+      api("/ngo/workers").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load workers.");
         return data.items ?? [];
@@ -37,7 +38,7 @@ function NewSiteForm() {
   const onSubmit = async (body) => {
     setError("");
     setSaving(true);
-    const response = await fetch("/api/ngo/sites", {
+    const response = await api("/ngo/sites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -11,7 +12,7 @@ export default function Page() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(true);
-      fetch(`/api/platform/audit-logs?q=${encodeURIComponent(query)}`)
+      api(`/platform/audit-logs?q=${encodeURIComponent(query)}`)
         .then(async (response) => {
           const data = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(data.error || "Could not load audit logs.");

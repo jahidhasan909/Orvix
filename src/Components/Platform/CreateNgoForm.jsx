@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -64,7 +65,7 @@ export default function CreateNgoForm() {
       },
     };
 
-    const response = await fetch("/api/platform/ngos", {
+    const response = await api("/platform/ngos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

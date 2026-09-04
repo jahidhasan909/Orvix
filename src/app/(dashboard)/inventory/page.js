@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { StockBadge } from "@/Components/Inventory/InventoryForms";
@@ -11,12 +12,12 @@ export default function Page() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/ngo/inventory/overview").then(async (response) => {
+      api("/ngo/inventory/overview").then(async (response) => {
         const json = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(json.error || "Could not load overview.");
         return json;
       }),
-      fetch("/api/ngo/inventory/items").then(async (response) => {
+      api("/ngo/inventory/items").then(async (response) => {
         const json = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(json.error || "Could not load items.");
         return json.items ?? [];

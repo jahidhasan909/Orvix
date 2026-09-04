@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -19,12 +20,12 @@ export default function Page() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/ngo/inventory/suppliers").then(async (response) => {
+      api("/ngo/inventory/suppliers").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load suppliers.");
         return data.items ?? [];
       }),
-      fetch("/api/ngo/inventory/items?status=active").then(async (response) => {
+      api("/ngo/inventory/items?status=active").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load inventory items.");
         return data.items ?? [];
@@ -40,7 +41,7 @@ export default function Page() {
   const onSubmit = async (body) => {
     setError("");
     setSaving(true);
-    const response = await fetch("/api/ngo/procurement/orders", {
+    const response = await api("/ngo/procurement/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

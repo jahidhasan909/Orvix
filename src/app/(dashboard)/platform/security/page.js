@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 const inputClass =
@@ -12,7 +13,7 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch("/api/platform/settings")
+    api("/platform/settings")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load security settings.");
@@ -27,7 +28,7 @@ export default function Page() {
     setError("");
     setSaved("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/platform/settings", {
+    const response = await api("/platform/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

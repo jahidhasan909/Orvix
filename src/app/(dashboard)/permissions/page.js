@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { DESIGNATION_PERMISSIONS, WORKER_DESIGNATIONS, WORKER_PERMISSIONS, designationLabel } from "@/lib/worker-catalog";
@@ -10,7 +11,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/ngo/workers")
+    api("/ngo/workers")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load workers.");

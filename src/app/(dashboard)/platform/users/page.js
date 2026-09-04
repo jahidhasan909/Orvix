@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 const inputClass =
@@ -14,7 +15,7 @@ export default function Page() {
   const [editingId, setEditingId] = useState("");
 
   const load = () => {
-    fetch("/api/platform/users")
+    api("/platform/users")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load platform users.");
@@ -33,7 +34,7 @@ export default function Page() {
     setError("");
     setSaved("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/platform/users", {
+    const response = await api("/platform/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -58,7 +59,7 @@ export default function Page() {
     event.preventDefault();
     setError("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch(`/api/platform/users/${row.id}`, {
+    const response = await api(`/platform/users/${row.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

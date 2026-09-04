@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/Components/Procurement/forms";
@@ -14,7 +15,7 @@ export default function Page() {
     setLoading(true);
     const params = new URLSearchParams();
     if (search.trim()) params.set("q", search.trim());
-    fetch(`/api/ngo/inventory/suppliers${params.toString() ? `?${params}` : ""}`)
+    api(`/ngo/inventory/suppliers${params.toString() ? `?${params}` : ""}`)
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load suppliers.");

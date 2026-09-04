@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -11,9 +12,9 @@ export default function Page() {
 
   const load = () => {
     Promise.all([
-      fetch("/api/ngo/inventory/items").then(async (response) => (await response.json()).items ?? []),
-      fetch("/api/ngo/assignments").then(async (response) => (await response.json()).sites ?? []),
-      fetch("/api/ngo/inventory/transfers").then(async (response) => {
+      api("/ngo/inventory/items").then(async (response) => (await response.json()).items ?? []),
+      api("/ngo/assignments").then(async (response) => (await response.json()).sites ?? []),
+      api("/ngo/inventory/transfers").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load transfers.");
         return data.items ?? [];
@@ -30,7 +31,7 @@ export default function Page() {
     setSaving(true);
     setError("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/ngo/inventory/transfers", {
+    const response = await api("/ngo/inventory/transfers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "@/Components/Procurement/forms";
 
@@ -16,7 +17,7 @@ export default function Page() {
   const [saving, setSaving] = useState("");
 
   const load = () => {
-    fetch("/api/activities/me")
+    api("/activities/me")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load activities.");
@@ -31,7 +32,7 @@ export default function Page() {
 
   const updateStatus = async (id, status) => {
     setSaving(id);
-    const response = await fetch("/api/activities/me", {
+    const response = await api("/activities/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status }),

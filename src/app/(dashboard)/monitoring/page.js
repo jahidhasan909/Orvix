@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -9,7 +10,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/ngo/monitoring")
+    api("/ngo/monitoring")
       .then(async (response) => {
         const json = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(json.error || "Could not load monitoring.");

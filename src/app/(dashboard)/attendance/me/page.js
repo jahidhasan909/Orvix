@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import WorkerAttendanceCalendar from "@/Components/Attendance/WorkerAttendanceCalendar";
 import { ABSENCE_REASONS } from "@/lib/absence-policy";
@@ -33,7 +34,7 @@ export default function Page() {
 
   const load = (nextCursor = cursor) => {
     setLoading(true);
-    fetch(`/api/attendance/me?from=${nextCursor.from}&to=${nextCursor.to}`)
+    api(`/attendance/me?from=${nextCursor.from}&to=${nextCursor.to}`)
       .then(async (response) => {
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || "Could not load attendance.");
@@ -85,7 +86,7 @@ export default function Page() {
   const saveDay = async (status, reason, note, day = selected, action) => {
     setSaving(action || status);
     setError("");
-    const response = await fetch("/api/attendance/me", {
+    const response = await api("/attendance/me", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status, reason, note, date: day, action }),

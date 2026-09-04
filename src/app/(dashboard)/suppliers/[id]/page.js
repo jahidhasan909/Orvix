@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ export default function Page() {
   const [deleting, setDeleting] = useState(false);
 
   const load = () => {
-    fetch(`/api/ngo/inventory/suppliers/${id}`)
+    api(`/ngo/inventory/suppliers/${id}`)
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load supplier.");
@@ -32,7 +33,7 @@ export default function Page() {
   const onSubmit = async (body) => {
     setSaving(true);
     setError("");
-    const response = await fetch(`/api/ngo/inventory/suppliers/${id}`, {
+    const response = await api(`/ngo/inventory/suppliers/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -50,7 +51,7 @@ export default function Page() {
   const onDelete = async () => {
     if (!window.confirm("Delete this supplier? If it is used on orders or receipts it will be archived instead.")) return;
     setDeleting(true);
-    const response = await fetch(`/api/ngo/inventory/suppliers/${id}`, { method: "DELETE" });
+    const response = await api(`/ngo/inventory/suppliers/${id}`, { method: "DELETE" });
     const data = await response.json().catch(() => ({}));
     setDeleting(false);
     if (!response.ok) {

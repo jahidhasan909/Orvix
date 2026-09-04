@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 function monthStart() {
@@ -18,7 +19,7 @@ export default function Page() {
   const [error, setError] = useState("");
 
   const load = (start = from, end = to) => {
-    fetch(`/api/ngo/reports?kind=attendance&from=${start}&to=${end}`)
+    api(`/ngo/reports?kind=attendance&from=${start}&to=${end}`)
       .then(async (response) => {
         const json = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(json.error || "Could not load report.");

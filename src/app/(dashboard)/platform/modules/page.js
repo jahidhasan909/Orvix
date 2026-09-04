@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { NGO_MODULE_OPTIONS, moduleOptionIdsFromEnabled } from "@/lib/ngo-catalog";
 
@@ -12,7 +13,7 @@ export default function Page() {
   const [saving, setSaving] = useState("");
 
   useEffect(() => {
-    fetch("/api/platform/ngos")
+    api("/platform/ngos")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load NGOs.");
@@ -40,7 +41,7 @@ export default function Page() {
     setSaving(ngo.id);
     setError("");
     setSaved("");
-    const response = await fetch(`/api/platform/ngos/${ngo.id}`, {
+    const response = await api(`/platform/ngos/${ngo.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ modulesOnly: true, moduleOptionIds: drafts[ngo.id] ?? [] }),

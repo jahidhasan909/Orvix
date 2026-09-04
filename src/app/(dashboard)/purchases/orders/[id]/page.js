@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -18,13 +19,13 @@ export default function Page() {
 
   const load = () => {
     Promise.all([
-      fetch(`/api/ngo/procurement/orders/${id}`).then(async (response) => {
+      api(`/ngo/procurement/orders/${id}`).then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load purchase order.");
         return data.item;
       }),
-      fetch("/api/ngo/inventory/suppliers").then(async (response) => (await response.json()).items ?? []),
-      fetch("/api/ngo/inventory/items").then(async (response) => (await response.json()).items ?? []),
+      api("/ngo/inventory/suppliers").then(async (response) => (await response.json()).items ?? []),
+      api("/ngo/inventory/items").then(async (response) => (await response.json()).items ?? []),
     ])
       .then(([item, vendorRows, catalog]) => {
         setOrder(item);
@@ -48,7 +49,7 @@ export default function Page() {
   const onSubmit = async (body) => {
     setSaving(true);
     setError("");
-    const response = await fetch(`/api/ngo/procurement/orders/${id}`, {
+    const response = await api(`/ngo/procurement/orders/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -67,7 +68,7 @@ export default function Page() {
   const cancelOrder = async () => {
     if (!window.confirm("Cancel this purchase order? Receiving will no longer be allowed.")) return;
     setSaving(true);
-    const response = await fetch(`/api/ngo/procurement/orders/${id}`, {
+    const response = await api(`/ngo/procurement/orders/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "cancelled" }),

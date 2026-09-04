@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -22,7 +23,7 @@ function ReceivingPage() {
 
   const load = (keepOrderId = orderId) => {
     setLoading(true);
-    fetch("/api/ngo/procurement/receiving")
+    api("/ngo/procurement/receiving")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load receiving.");
@@ -62,7 +63,7 @@ function ReceivingPage() {
     const lines = (selected.lines ?? [])
       .map((line) => ({ lineId: line.id, quantity: Number(qtys[line.id] || 0) }))
       .filter((line) => line.quantity > 0);
-    const response = await fetch("/api/ngo/procurement/receiving", {
+    const response = await api("/ngo/procurement/receiving", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ orderId: selected.id, lines, notes }),

@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { ABSENCE_REASONS, resolveAbsencePolicy } from "@/lib/absence-policy";
 
@@ -28,7 +29,7 @@ export default function Page() {
 
   const load = (day) => {
     setLoading(true);
-    fetch(`/api/ngo/attendance?date=${day}`)
+    api(`/ngo/attendance?date=${day}`)
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load attendance.");
@@ -63,7 +64,7 @@ export default function Page() {
     if (!draft?.status) return;
     setSavingId(workerId);
     setError("");
-    const response = await fetch("/api/ngo/attendance", {
+    const response = await api("/ngo/attendance", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

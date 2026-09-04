@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { LEAVE_TYPES } from "@/lib/leave";
 import { StatusBadge } from "@/Components/Procurement/forms";
@@ -20,13 +21,13 @@ export default function Page() {
     setLoading(true);
     const params = status ? `?status=${status}` : "";
     Promise.all([
-      fetch(`/api/ngo/leave${params}`).then(async (response) => {
+      api(`/ngo/leave${params}`).then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load leave.");
         return data.items ?? [];
       }),
       isAdmin
-        ? fetch("/api/ngo/workers").then(async (response) => (await response.json()).items ?? [])
+        ? api("/ngo/workers").then(async (response) => (await response.json()).items ?? [])
         : Promise.resolve([]),
     ])
       .then(([rows, workerRows]) => {
@@ -45,7 +46,7 @@ export default function Page() {
     setSaving(true);
     setError("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/ngo/leave", {
+    const response = await api("/ngo/leave", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -67,7 +68,7 @@ export default function Page() {
   };
 
   const act = async (id, action) => {
-    const response = await fetch(`/api/ngo/leave/${id}`, {
+    const response = await api(`/ngo/leave/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action }),

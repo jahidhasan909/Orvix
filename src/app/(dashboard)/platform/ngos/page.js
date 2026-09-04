@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { categoryLabel, NGO_MODULE_OPTIONS } from "@/lib/ngo-catalog";
@@ -22,7 +23,7 @@ export default function Page() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/api/platform/ngos")
+    api("/platform/ngos")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load NGOs.");

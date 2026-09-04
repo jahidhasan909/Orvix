@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "@/Components/Procurement/forms";
 
@@ -10,7 +11,7 @@ export default function Page() {
   const [saving, setSaving] = useState("");
 
   const load = () => {
-    fetch("/api/data-entry/me")
+    api("/data-entry/me")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load forms.");
@@ -25,7 +26,7 @@ export default function Page() {
 
   const save = async (row, records, status) => {
     setSaving(row.id);
-    const response = await fetch("/api/data-entry/me", {
+    const response = await api("/data-entry/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: row.id, records, status }),

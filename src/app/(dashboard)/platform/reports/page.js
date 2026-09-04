@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 const KINDS = [
@@ -17,7 +18,7 @@ export default function Page() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/platform/reports?kind=${kind}`)
+    api(`/platform/reports?kind=${kind}`)
       .then(async (response) => {
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || "Could not load the report.");

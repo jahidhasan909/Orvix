@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useAccess } from "@/context/AccessContext";
 import { useRouter } from "next/navigation";
@@ -24,7 +25,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!persona?.sharePointEnabled) return;
-    fetch("/api/ngo/sharepoint")
+    api("/ngo/sharepoint")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "SharePoint is not available.");
@@ -39,7 +40,7 @@ export default function Page() {
     setError("");
     setSaving(true);
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/ngo/sharepoint", {
+    const response = await api("/ngo/sharepoint", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProjectForm from "@/Components/Projects/ProjectForm";
@@ -12,7 +13,7 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch("/api/ngo/workers")
+    api("/ngo/workers")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load workers.");
@@ -24,7 +25,7 @@ export default function Page() {
   const onSubmit = async (body) => {
     setError("");
     setSaving(true);
-    const response = await fetch("/api/ngo/projects", {
+    const response = await api("/ngo/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

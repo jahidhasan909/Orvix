@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,7 +22,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (persona.role !== ROLES.NGO_ADMIN) return;
-    fetch("/api/ngo/dashboard")
+    api("/ngo/dashboard")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) return;
@@ -32,7 +33,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (persona.role !== ROLES.PLATFORM_ADMIN) return;
-    fetch("/api/platform/overview")
+    api("/platform/overview")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) return;

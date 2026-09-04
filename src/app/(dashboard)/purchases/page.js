@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/Components/Procurement/forms";
@@ -24,7 +25,7 @@ export default function Page() {
     if (orderId) params.set("orderId", orderId);
     if (from) params.set("from", from);
     if (to) params.set("to", to);
-    fetch(`/api/ngo/procurement/purchases${params.toString() ? `?${params}` : ""}`)
+    api(`/ngo/procurement/purchases${params.toString() ? `?${params}` : ""}`)
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load purchases.");
@@ -37,8 +38,8 @@ export default function Page() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/ngo/inventory/suppliers").then(async (response) => (await response.json()).items ?? []),
-      fetch("/api/ngo/procurement/orders").then(async (response) => (await response.json()).items ?? []),
+      api("/ngo/inventory/suppliers").then(async (response) => (await response.json()).items ?? []),
+      api("/ngo/procurement/orders").then(async (response) => (await response.json()).items ?? []),
     ])
       .then(([vendorRows, orderRows]) => {
         setSuppliers(vendorRows);

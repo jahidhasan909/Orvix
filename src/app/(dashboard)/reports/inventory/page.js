@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { StockBadge } from "@/Components/Inventory/InventoryForms";
 
@@ -8,7 +9,7 @@ export default function Page() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/ngo/inventory/reports")
+    api("/ngo/inventory/reports")
       .then(async (response) => {
         const json = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(json.error || "Could not load report.");

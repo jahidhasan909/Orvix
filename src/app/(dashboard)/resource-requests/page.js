@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useAccess } from "@/context/AccessContext";
 import { ROLES } from "@/lib/navigation";
@@ -17,13 +18,13 @@ export default function Page() {
 
   const load = () => {
     Promise.all([
-      fetch("/api/ngo/inventory/requests").then(async (response) => {
+      api("/ngo/inventory/requests").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load requests.");
         return data.items ?? [];
       }),
-      fetch("/api/ngo/inventory/items").then(async (response) => (await response.json()).items ?? []),
-      fetch(persona?.role === ROLES.NGO_ADMIN ? "/api/ngo/assignments" : "/api/assignments/me").then(async (response) => (
+      api("/ngo/inventory/items").then(async (response) => (await response.json()).items ?? []),
+      api(isAdmin ? "/ngo/assignments" : "/assignments/me").then(async (response) => (
         response.ok ? response.json() : { projects: [], sites: [] }
       )),
     ])
@@ -43,7 +44,7 @@ export default function Page() {
     setSaving(true);
     setError("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/ngo/inventory/requests", {
+    const response = await api("/ngo/inventory/requests", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -66,7 +67,7 @@ export default function Page() {
   };
 
   const act = async (id, action) => {
-    const response = await fetch(`/api/ngo/inventory/requests/${id}`, {
+    const response = await api(`/ngo/inventory/requests/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, decisionNote: note }),

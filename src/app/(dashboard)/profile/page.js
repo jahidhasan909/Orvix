@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useAccess } from "@/context/AccessContext";
 import { ROLES } from "@/lib/navigation";
@@ -25,7 +26,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!canEdit) return;
-    fetch("/api/me")
+    api("/me")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load profile.");
@@ -40,7 +41,7 @@ export default function Page() {
     setError("");
     setSaved("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/me", {
+    const response = await api("/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: form.get("name"), phone: form.get("phone") }),
@@ -61,7 +62,7 @@ export default function Page() {
     setError("");
     setSaved("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/me/password", {
+    const response = await api("/me/password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

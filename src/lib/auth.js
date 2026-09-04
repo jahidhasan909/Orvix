@@ -30,10 +30,16 @@ export const auth = betterAuth({
         enabled: true,
         disableSignUp: true,
     },
-    trustedOrigins: [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    trustedOrigins: Array.from(
+        new Set(
+            [
+                process.env.BETTER_AUTH_URL,
+                process.env.NEXT_PUBLIC_APP_URL,
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+            ].filter(Boolean)
+        )
+    ),
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),

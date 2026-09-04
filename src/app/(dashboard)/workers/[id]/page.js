@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import WorkerForm from "@/Components/Workers/WorkerForm";
@@ -21,17 +22,17 @@ export default function Page() {
 
   const load = () => {
     Promise.all([
-      fetch(`/api/ngo/workers/${id}`).then(async (response) => {
+      api(`/ngo/workers/${id}`).then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load worker.");
         return data.item;
       }),
-      fetch("/api/ngo/assignments").then(async (response) => {
+      api("/ngo/assignments").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load assignments.");
         return data;
       }),
-      fetch(`/api/ngo/workers/${id}/payroll`).then(async (response) => {
+      api(`/ngo/workers/${id}/payroll`).then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) return null;
         return data;
@@ -54,7 +55,7 @@ export default function Page() {
   const onSubmit = async (body) => {
     setError("");
     setSaving(true);
-    const response = await fetch(`/api/ngo/workers/${id}`, {
+    const response = await api(`/ngo/workers/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

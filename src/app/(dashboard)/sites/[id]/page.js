@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -20,17 +21,17 @@ export default function Page() {
 
   const load = () => {
     Promise.all([
-      fetch(`/api/ngo/sites/${id}`).then(async (response) => {
+      api(`/ngo/sites/${id}`).then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load site.");
         return data.item;
       }),
-      fetch("/api/ngo/projects").then(async (response) => {
+      api("/ngo/projects").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load projects.");
         return data.items ?? [];
       }),
-      fetch("/api/ngo/workers").then(async (response) => {
+      api("/ngo/workers").then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load workers.");
         return data.items ?? [];
@@ -53,7 +54,7 @@ export default function Page() {
   const onSubmit = async (body) => {
     setError("");
     setSaving(true);
-    const response = await fetch(`/api/ngo/sites/${id}`, {
+    const response = await api(`/ngo/sites/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -72,7 +73,7 @@ export default function Page() {
   const onDelete = async () => {
     if (!window.confirm("Delete this site? Assigned workers will be unassigned from it.")) return;
     setDeleting(true);
-    const response = await fetch(`/api/ngo/sites/${id}`, { method: "DELETE" });
+    const response = await api(`/ngo/sites/${id}`, { method: "DELETE" });
     const data = await response.json().catch(() => ({}));
     setDeleting(false);
     if (!response.ok) {

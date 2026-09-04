@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 const inputClass =
@@ -12,7 +13,7 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch("/api/ngo/settings")
+    api("/ngo/settings")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load NGO settings.");
@@ -27,7 +28,7 @@ export default function Page() {
     setSaving(true);
     setError("");
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/ngo/settings", {
+    const response = await api("/ngo/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

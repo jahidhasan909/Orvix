@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -11,7 +12,7 @@ export default function Page() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/api/ngo/workers")
+    api("/ngo/workers")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load workers.");

@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useMemo, useState } from "react";
 import { ItemForm, StockBadge } from "@/Components/Inventory/InventoryForms";
 
@@ -22,13 +23,13 @@ export default function Page() {
     if (categoryId) params.set("categoryId", categoryId);
     if (stockStatus) params.set("stockStatus", stockStatus);
     Promise.all([
-      fetch(`/api/ngo/inventory/items?${params}`).then(async (response) => {
+      api(`/ngo/inventory/items?${params}`).then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load items.");
         return data.items ?? [];
       }),
-      fetch("/api/ngo/inventory/categories").then(async (response) => (await response.json()).items ?? []),
-      fetch("/api/ngo/assignments").then(async (response) => response.json()),
+      api("/ngo/inventory/categories").then(async (response) => (await response.json()).items ?? []),
+      api("/ngo/assignments").then(async (response) => response.json()),
     ])
       .then(([list, cats, assignments]) => {
         setItems(list);
@@ -46,8 +47,7 @@ export default function Page() {
   const onSave = async (body) => {
     setSaving(true);
     setError("");
-    const url = editing ? `/api/ngo/inventory/items/${editing.id}` : "/api/ngo/inventory/items";
-    const response = await fetch(url, {
+    const response = await api(editing ? `/ngo/inventory/items/${editing.id}` : "/ngo/inventory/items", {
       method: editing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -65,7 +65,7 @@ export default function Page() {
 
   const onArchive = async (item) => {
     if (!window.confirm("Archive or delete this item?")) return;
-    const response = await fetch(`/api/ngo/inventory/items/${item.id}`, { method: "DELETE" });
+    const response = await api(`/ngo/inventory/items/${item.id}`, { method: "DELETE" });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) setError(data.error || "Could not remove the item.");
     load();

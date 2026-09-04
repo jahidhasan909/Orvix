@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/Components/Projects/ProjectForm";
@@ -11,7 +12,7 @@ export default function Page() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/ngo/projects")
+    api("/ngo/projects")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || "Could not load projects.");
