@@ -18,7 +18,11 @@ export function resolveAbsencePolicy(reason, reasons = ABSENCE_REASONS) {
     return { id: "unrecorded", label: "No attendance recorded", paid: false, known: false };
   }
 
-  const match = reasons.find((item) => item.id === key || normalize(item.label) === key);
+  const match = reasons.find((item) => {
+    const id = normalize(item.id);
+    const label = normalize(item.label);
+    return key === id || key === label || key.startsWith(`${id}:`) || key.startsWith(`${label}:`);
+  });
   if (match) {
     return { ...match, known: true };
   }

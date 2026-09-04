@@ -21,6 +21,7 @@ function yesNo(value) {
 export default function Page() {
   const { id } = useParams();
   const [ngo, setNgo] = useState(null);
+  const [stats, setStats] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -40,6 +41,7 @@ export default function Page() {
         if (!response.ok) throw new Error(data.error || "Could not load NGO.");
         if (!cancelled) {
           setNgo(data.item);
+          setStats(data.stats ?? null);
           setCategory(data.item.category ?? "");
           setModuleOptionIds(moduleOptionIdsFromEnabled(data.item.enabledModules));
         }
@@ -173,6 +175,22 @@ export default function Page() {
       </div>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
+
+      {stats ? (
+        <div className="grid gap-3 sm:grid-cols-4">
+          {[
+            { label: "Workers", value: stats.workers },
+            { label: "Projects", value: stats.projects },
+            { label: "Sites", value: stats.sites },
+            { label: "Pending requests", value: stats.pendingRequests },
+          ].map((card) => (
+            <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">{card.label}</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">{card.value}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-xs font-semibold tracking-[0.14em] text-slate-400 uppercase">Basic information</p>

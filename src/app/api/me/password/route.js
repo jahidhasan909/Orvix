@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { asString } from "@/lib/worker-payload";
 import { requireNgoSession } from "@/lib/require-ngo-session";
+import { requirePlatformAdmin } from "@/lib/require-platform-admin";
 import { ROLES } from "@/lib/navigation";
 
 function jsonError(message, status = 400) {
@@ -10,7 +11,8 @@ function jsonError(message, status = 400) {
 }
 
 export async function POST(request) {
-  const gate = await requireNgoSession([ROLES.NGO_ADMIN, ROLES.WORKER]);
+  const platform = await requirePlatformAdmin();
+  const gate = platform.error ? await requireNgoSession([ROLES.NGO_ADMIN, ROLES.WORKER]) : platform;
   if (gate.error) return jsonError(gate.error, gate.status);
 
   const body = await request.json().catch(() => null);

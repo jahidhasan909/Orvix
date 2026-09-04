@@ -9,6 +9,7 @@ import {
 } from "@/lib/worker-catalog";
 import { DESIGNATIONS } from "@/lib/navigation";
 import { dateInputValue } from "@/lib/worker-payload";
+import { dateKey } from "@/lib/payroll";
 
 const inputClass =
   "mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#2075fe] focus:ring-2 focus:ring-[#2075fe]/20 disabled:bg-slate-50 disabled:text-slate-500";
@@ -109,9 +110,10 @@ export default function WorkerForm({
               type="date"
               required
               disabled={disabled}
-              defaultValue={dateInputValue(worker?.joiningDate)}
+              defaultValue={dateInputValue(worker?.joiningDate) || (mode === "create" ? dateKey(new Date()) : "")}
               className={inputClass}
             />
+            <p className="mt-1 text-xs text-slate-400">Attendance and salary start from this date.</p>
           </label>
           <label className="sm:col-span-2">
             <span className={labelClass}>Address</span>

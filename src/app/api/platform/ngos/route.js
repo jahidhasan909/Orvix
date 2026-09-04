@@ -9,6 +9,7 @@ import {
   expandNgoModules,
   makeNgoCode,
 } from "@/lib/ngo-catalog";
+import { writeAudit } from "@/lib/audit";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -160,6 +161,12 @@ export async function POST(request) {
       });
 
       return created;
+    });
+
+    await writeAudit(prisma, {
+      actor: gate.email,
+      action: "ngo.create",
+      target: ngo.name,
     });
 
     return NextResponse.json({

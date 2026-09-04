@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ROLES } from "@/lib/navigation";
 import { requirePlatformAdmin } from "@/lib/require-platform-admin";
 import { NGO_CATEGORIES, expandNgoModules } from "@/lib/ngo-catalog";
+import { writeAudit } from "@/lib/audit";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -43,7 +44,17 @@ export async function GET(_request, { params }) {
   const ngo = await loadNgo(id);
   if (!ngo) return jsonError("NGO not found.", 404);
 
-  return NextResponse.json({ item: ngo });
+  const [workers, projects, sites, pendingRequests] = await Promise.all([
+    prisma.user.count({ where: { ngoId: id, role: ROLES.WORKER } }),
+    prisma.project.count({ where: { ngoId: id } }),
+    prisma.site.count({ where: { ngoId: id } }),
+    prisma.resourceRequest.count({ where: { ngoId: id, status: "pending" } }),
+  ]);
+
+  return NextResponse.json({
+    item: ngo,
+    stats: { workers, projects, sites, pendingRequests, admins: ngo.users.length },
+  });
 }
 
 export async function PATCH(request, { params }) {
@@ -56,6 +67,24 @@ export async function PATCH(request, { params }) {
 
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") return jsonError("Invalid request body.");
+
+  if (body.modulesOnly) {
+    const moduleOptionIds = Array.isArray(body.moduleOptionIds)
+      ? body.moduleOptionIds.map(asString).filter(Boolean)
+      : [];
+    const enabledModules = expandNgoModules(moduleOptionIds);
+    if (!enabledModules.length) return jsonError("Select at least one module for this NGO.");
+    const item = await prisma.ngo.update({
+      where: { id },
+      data: { enabledModules },
+    });
+    await writeAudit(prisma, {
+      actor: gate.email,
+      action: "ngo.modules.update",
+      target: item.name,
+    });
+    return NextResponse.json({ item: await loadNgo(id) });
+  }
 
   const name = asString(body.name);
   const category = asString(body.category);
@@ -174,5 +203,10 @@ export async function PATCH(request, { params }) {
   }
 
   const item = await loadNgo(id);
+  await writeAudit(prisma, {
+    actor: gate.email,
+    action: `ngo.${asString(body.status) === "inactive" ? "deactivate" : "update"}`,
+    target: item?.name || id,
+  });
   return NextResponse.json({ item });
 }

@@ -5,6 +5,7 @@ import { ATTENDANCE_STATUS, dateKey, monthBounds, utcDate } from "@/lib/payroll"
 import { requireNgoAdmin } from "@/lib/require-ngo-admin";
 import { ROLES } from "@/lib/navigation";
 import { dayRange, upsertWorkerAttendance } from "@/lib/attendance-save";
+import { buildWorkerSalaryPeriod } from "@/lib/salary-period";
 
 const ALLOWED = new Set(Object.values(ATTENDANCE_STATUS));
 
@@ -24,7 +25,7 @@ export async function GET(request) {
     prisma.user.findMany({
       where: { ngoId: gate.ngoId, role: ROLES.WORKER },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, employeeId: true, designation: true, status: true },
+      select: { id: true, name: true, employeeId: true, designation: true, status: true, joiningDate: true },
     }),
     prisma.attendanceRecord.findMany({
       where: { ngoId: gate.ngoId, date: { gte: range.start, lt: range.end } },
@@ -38,6 +39,7 @@ export async function GET(request) {
     reasons: ABSENCE_REASONS,
     items: workers.map((worker) => ({
       ...worker,
+      joiningDate: dateKey(worker.joiningDate),
       attendance: byUser[worker.id]
         ? {
             id: byUser[worker.id].id,
@@ -74,9 +76,13 @@ export async function POST(request) {
 
   const worker = await prisma.user.findFirst({
     where: { id: userId, ngoId: gate.ngoId, role: ROLES.WORKER },
-    select: { id: true, name: true },
+    select: { id: true, name: true, joiningDate: true },
   });
   if (!worker) return jsonError("Worker not found.", 404);
+  const joiningKey = dateKey(worker.joiningDate);
+  if (joiningKey && dateKey(date) < joiningKey) {
+    return jsonError("You cannot mark attendance before the worker joining date.");
+  }
 
   const existing = await prisma.attendanceRecord.findFirst({
     where: {
@@ -97,6 +103,9 @@ export async function POST(request) {
       reason: status === ATTENDANCE_STATUS.ABSENT ? policy.label : null,
       checkInAt: status === ATTENDANCE_STATUS.PRESENT || status === ATTENDANCE_STATUS.LATE
         ? existing?.checkInAt ?? new Date()
+        : null,
+      checkOutAt: status === ATTENDANCE_STATUS.PRESENT || status === ATTENDANCE_STATUS.LATE
+        ? existing?.checkOutAt ?? null
         : null,
     },
   });

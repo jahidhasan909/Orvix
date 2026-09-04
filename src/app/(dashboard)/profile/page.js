@@ -10,7 +10,10 @@ const inputClass =
 
 export default function Page() {
   const { persona } = useAccess();
-  const canEdit = persona?.role === ROLES.WORKER || persona?.role === ROLES.NGO_ADMIN;
+  const canEdit =
+    persona?.role === ROLES.WORKER ||
+    persona?.role === ROLES.NGO_ADMIN ||
+    persona?.role === ROLES.PLATFORM_ADMIN;
   const showMfa =
     (persona?.role === ROLES.NGO_ADMIN || persona?.role === ROLES.WORKER) &&
     persona.mfaEnabled;
@@ -104,6 +107,14 @@ export default function Page() {
             <div>
               <dt className="text-xs text-slate-400">Designation</dt>
               <dd className="mt-1 text-sm font-medium text-slate-900">{persona.designationLabel}</dd>
+            </div>
+          ) : null}
+          {profile?.joiningDate ? (
+            <div>
+              <dt className="text-xs text-slate-400">Joining date</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-900">
+                {new Date(profile.joiningDate).toLocaleDateString()}
+              </dd>
             </div>
           ) : null}
         </dl>

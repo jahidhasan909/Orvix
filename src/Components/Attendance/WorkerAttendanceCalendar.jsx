@@ -1,5 +1,7 @@
 "use client";
 
+import { durationLabel } from "@/lib/attendance-day";
+
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const STATUS_STYLE = {
@@ -57,6 +59,7 @@ export default function WorkerAttendanceCalendar({
   days,
   selected,
   today,
+  joiningDate,
   onSelect,
   onPrev,
   onNext,
@@ -97,15 +100,21 @@ export default function WorkerAttendanceCalendar({
             const status = cell.item?.status;
             const isSelected = selected === cell.key;
             const isToday = today === cell.key;
+            const beforeJoin = Boolean(joiningDate && cell.key < joiningDate);
+            const isFuture = cell.key > today;
+            const locked = beforeJoin || isFuture;
             return (
               <button
                 key={cell.key}
                 type="button"
+                disabled={locked}
                 onClick={() => onSelect(cell.key)}
                 className={`min-h-16 rounded-xl border px-1.5 py-2 text-left transition ${
-                  isSelected
-                    ? "border-[#2075fe] bg-[#2075fe]/5 shadow-sm"
-                    : "border-dashed border-slate-200 hover:border-slate-300"
+                  locked
+                    ? "cursor-not-allowed border-dashed border-slate-100 opacity-50"
+                    : isSelected
+                      ? "border-[#2075fe] bg-[#2075fe]/5 shadow-sm"
+                      : "border-dashed border-slate-200 hover:border-slate-300"
                 }`}
               >
                 <p className={`text-sm font-semibold ${isToday ? "text-[#2075fe]" : "text-slate-800"}`}>{cell.day}</p>
@@ -128,7 +137,11 @@ export default function WorkerAttendanceCalendar({
 
         {!selectedDay ? (
           <p className="mt-4 text-sm text-slate-500">
-            {selected > today ? "This date has not been reached yet." : "No attendance applies on this date."}
+            {joiningDate && selected < joiningDate
+              ? `Attendance starts on your joining date (${longDate(joiningDate)}).`
+              : selected > today
+                ? "This date has not been reached yet."
+                : "No attendance recorded yet. Mark present or absent for this date."}
           </p>
         ) : (
           <dl className="mt-4 space-y-3 text-sm">
@@ -144,6 +157,12 @@ export default function WorkerAttendanceCalendar({
               <dt className="text-xs text-slate-400">Check-out time</dt>
               <dd className="mt-1 font-medium text-slate-900">{formatTime(selectedDay.checkOutAt)}</dd>
             </div>
+            {selectedDay.minutesPresent != null ? (
+              <div>
+                <dt className="text-xs text-slate-400">Time present</dt>
+                <dd className="mt-1 font-medium text-slate-900">{durationLabel(selectedDay.minutesPresent)}</dd>
+              </div>
+            ) : null}
             {selectedDay.status === "Absent" ? (
               <>
                 <div>

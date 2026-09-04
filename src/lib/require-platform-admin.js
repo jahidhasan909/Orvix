@@ -15,5 +15,5 @@ export async function requirePlatformAdmin() {
     return { error: "Only a Main Platform Admin can manage NGOs.", status: 403 };
   }
 
-  return { session };
+  return { session, userId: session.user.id, email: session.user.email || session.user.name || "platform_admin" };
 }

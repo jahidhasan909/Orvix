@@ -1,4 +1,44 @@
-import { dateKey, utcDate } from "@/lib/payroll";
+import { ATTENDANCE_STATUS, dateKey, utcDate } from "@/lib/payroll";
+
+export function presentPunch(existing, requested) {
+  const now = new Date();
+  const status = String(existing?.status || "").toLowerCase();
+  const checkedIn = status === ATTENDANCE_STATUS.PRESENT && Boolean(existing?.checkInAt);
+  const closed = checkedIn && Boolean(existing?.checkOutAt);
+  const wantOut = requested === "check-out";
+
+  if (status === ATTENDANCE_STATUS.LEAVE || status === ATTENDANCE_STATUS.HOLIDAY) {
+    return { error: "This date is already marked as leave or holiday." };
+  }
+  if (closed) {
+    return { error: "Attendance for this date is already completed." };
+  }
+  if (wantOut && !checkedIn) {
+    return { error: "Check in before you check out." };
+  }
+  if (!wantOut && checkedIn) {
+    return { error: "Already checked in for this date." };
+  }
+  if (wantOut) {
+    const checkOutAt = now < new Date(existing.checkInAt) ? new Date(existing.checkInAt) : now;
+    return {
+      checkInAt: existing.checkInAt,
+      checkOutAt,
+      action: "check-out",
+    };
+  }
+  return {
+    checkInAt: now,
+    checkOutAt: null,
+    action: "check-in",
+  };
+}
+
+export function absenceReasonLabel(policy, note) {
+  const detail = typeof note === "string" ? note.trim() : "";
+  if (!detail) return policy.label;
+  return `${policy.label}: ${detail}`;
+}
 
 export function dayRange(value) {
   const start = utcDate(value);

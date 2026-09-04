@@ -1,6 +1,21 @@
 import { resolveAbsencePolicy } from "@/lib/absence-policy";
 import { dateKey, utcDate } from "@/lib/payroll";
 
+export function minutesPresent(checkInAt, checkOutAt) {
+  if (!checkInAt || !checkOutAt) return null;
+  const minutes = Math.round((new Date(checkOutAt) - new Date(checkInAt)) / 60000);
+  return Number.isFinite(minutes) && minutes >= 0 ? minutes : null;
+}
+
+export function durationLabel(minutes) {
+  if (minutes == null) return "—";
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (hours && rest) return `${hours}h ${rest}m`;
+  if (hours) return `${hours}h`;
+  return `${rest}m`;
+}
+
 export function displayStatus(outcome) {
   if (outcome === "present") return "Present";
   if (outcome === "paid_leave" || outcome === "unpaid_leave") return "Leave";
@@ -56,7 +71,8 @@ export function decorateAttendanceDays(days = [], records = [], leaves = []) {
       recorded: Boolean(day.recorded),
       checkInAt: record?.checkInAt ?? null,
       checkOutAt: record?.checkOutAt ?? null,
-      reason: status === "Absent" ? reason || (day.recorded ? "" : "No attendance recorded") : "",
+      minutesPresent: minutesPresent(record?.checkInAt, record?.checkOutAt),
+      reason: status === "Absent" ? record?.reason?.trim() || reason || (day.recorded ? "" : "No attendance recorded") : "",
       leave: status === "Leave" ? publicLeave(leave, record) : null,
     };
   });

@@ -14,7 +14,7 @@ export async function GET() {
 
   const user = await prisma.user.findFirst({
     where: { id: gate.userId, ngoId: gate.ngoId, role: ROLES.WORKER },
-    select: { assignedProjectIds: true, assignedSiteIds: true },
+    select: { assignedProjectIds: true, assignedSiteIds: true, joiningDate: true },
   });
   if (!user) return jsonError("Worker not found.", 404);
 
@@ -47,6 +47,7 @@ export async function GET() {
   ]);
 
   return NextResponse.json({
+    joiningDate: user.joiningDate ? dateKey(user.joiningDate) : "",
     attendance: attendance?.status || "unmarked",
     assignedProjects: (user.assignedProjectIds ?? []).length,
     assignedSites: (user.assignedSiteIds ?? []).length,

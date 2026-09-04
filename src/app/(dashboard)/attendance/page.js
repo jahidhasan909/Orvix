@@ -125,6 +125,7 @@ export default function Page() {
             ) : (
               items.map((worker) => {
                 const draft = drafts[worker.id] ?? { status: "", leavePaid: false, reason: "" };
+                const beforeJoin = Boolean(worker.joiningDate && date < worker.joiningDate);
                 return (
                   <tr key={worker.id} className="border-t border-slate-100">
                     <td className="px-5 py-4">
@@ -187,7 +188,7 @@ export default function Page() {
                     <td className="px-5 py-4 text-right">
                       <button
                         type="button"
-                        disabled={!draft.status || savingId === worker.id || (draft.status === "absent" && !draft.reason)}
+                        disabled={!draft.status || beforeJoin || savingId === worker.id || (draft.status === "absent" && !draft.reason)}
                         onClick={() => save(worker.id)}
                         className="rounded-lg bg-[#2075fe] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a63dc] disabled:opacity-50"
                       >

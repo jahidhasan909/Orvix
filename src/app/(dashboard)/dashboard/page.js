@@ -2,28 +2,22 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { NgoDashboardCharts, PlatformDashboardCharts } from "@/Components/Dashboard/DashboardCharts";
 import { useAccess } from "@/context/AccessContext";
-import { DESIGNATIONS, ROLES } from "@/lib/navigation";
-
-const PLATFORM_CARDS = [
-  { label: "Registered NGOs", value: "12", href: "/platform/ngos" },
-  { label: "Platform admins", value: "4", href: "/platform/users" },
-  { label: "Modules in review", value: "3", href: "/platform/modules" },
-  { label: "Open audit events", value: "18", href: "/platform/audit-logs" },
-];
-
-const ATTENDANCE_LABELS = {
-  present: "Present",
-  absent: "Absent",
-  leave: "Leave",
-  holiday: "Holiday",
-  unmarked: "Unmarked",
-};
+import { ROLES, homePath } from "@/lib/navigation";
 
 export default function DashboardPage() {
   const { persona } = useAccess();
+  const router = useRouter();
   const [ngoStats, setNgoStats] = useState(null);
-  const [overview, setOverview] = useState(null);
+  const [platformStats, setPlatformStats] = useState(null);
+
+  useEffect(() => {
+    if (persona.role === ROLES.WORKER) {
+      router.replace(homePath(persona));
+    }
+  }, [persona, router]);
 
   useEffect(() => {
     if (persona.role !== ROLES.NGO_ADMIN) return;
@@ -37,41 +31,39 @@ export default function DashboardPage() {
   }, [persona.role]);
 
   useEffect(() => {
-    if (persona.role !== ROLES.WORKER) return;
-    fetch("/api/me/overview")
+    if (persona.role !== ROLES.PLATFORM_ADMIN) return;
+    fetch("/api/platform/overview")
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) return;
-        setOverview(data);
+        setPlatformStats(data);
       })
       .catch(() => {});
   }, [persona.role]);
 
-  const ngoCards = [
-    { label: "Active projects", value: ngoStats?.projects ?? "…", href: "/projects" },
-    { label: "Workers", value: ngoStats?.workers ?? "…", href: "/workers" },
-    { label: "Pending requests", value: ngoStats?.pendingRequests ?? "…", href: "/resource-requests" },
-    { label: "Low stock items", value: ngoStats?.lowStock ?? "…", href: "/inventory" },
-  ];
+  if (persona.role === ROLES.WORKER) {
+    return (
+      <p className="flex items-center justify-center gap-2 py-16 text-sm text-slate-400">
+        <span className="orvix-spinner" />
+        Opening your workspace…
+      </p>
+    );
+  }
 
   const cards =
     persona.role === ROLES.PLATFORM_ADMIN
-      ? PLATFORM_CARDS
-      : persona.role === ROLES.NGO_ADMIN
-        ? ngoCards
-        : persona.designation === DESIGNATIONS.DATA_ENTRY_OFFICER
-          ? [
-              { label: "Assigned forms", value: overview?.forms ?? "…", href: "/data-entry" },
-              { label: "Open records", value: overview?.queuedRecords ?? "…", href: "/data-entry" },
-              { label: "Notifications", value: overview?.unreadNotifications ?? "…", href: "/notifications" },
-              { label: "My profile", value: "Open", href: "/profile" },
-            ]
-          : [
-              { label: "My attendance", value: overview ? ATTENDANCE_LABELS[overview.attendance] || overview.attendance : "…", href: "/attendance/me" },
-              { label: "Assigned sites", value: overview?.assignedSites ?? "…", href: "/my-assignments" },
-              { label: "Open requests", value: overview?.pendingRequests ?? "…", href: "/resource-requests" },
-              { label: "Notifications", value: overview?.unreadNotifications ?? "…", href: "/notifications" },
-            ];
+      ? [
+          { label: "Registered NGOs", value: platformStats?.ngos ?? "…", href: "/platform/ngos" },
+          { label: "Active NGOs", value: platformStats?.activeNgos ?? "…", href: "/platform/ngos" },
+          { label: "Workers", value: platformStats?.workers ?? "…", href: "/platform/reports" },
+          { label: "Audit events", value: platformStats?.auditEvents ?? "…", href: "/platform/audit-logs" },
+        ]
+      : [
+          { label: "Active projects", value: ngoStats?.projects ?? "…", href: "/projects" },
+          { label: "Workers", value: ngoStats?.workers ?? "…", href: "/workers" },
+          { label: "Pending requests", value: ngoStats?.pendingRequests ?? "…", href: "/resource-requests" },
+          { label: "Low stock items", value: ngoStats?.lowStock ?? "…", href: "/inventory" },
+        ];
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -96,12 +88,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold text-slate-800">Workspace</p>
-        <p className="mt-2 text-sm leading-6 text-slate-500">
-          Modules in the sidebar follow your role, enabled NGO modules, and assigned permissions.
-        </p>
-      </div>
+      {persona.role === ROLES.NGO_ADMIN ? <NgoDashboardCharts charts={ngoStats?.charts} /> : null}
+      {persona.role === ROLES.PLATFORM_ADMIN ? <PlatformDashboardCharts charts={platformStats?.charts} /> : null}
     </div>
   );
 }

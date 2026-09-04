@@ -197,11 +197,16 @@ export function calculateAttendancePay(salary, records = [], options = {}) {
   const absentDays = days.filter((day) => day.outcome === DAY_OUTCOME.ABSENT).length;
   const unpaidDays = absentDays + unpaidLeaveDays;
   const paidDays = presentDays + paidLeaveDays + paidAbsenceDays;
-  const rate = dailyRate(salary, workingDaysPerMonth);
-  const totalSalary = money(salary.basicSalary);
+  const monthDays = eachUtcDate(from, to).length || workingDaysPerMonth;
+  const joinStart = joiningDate && joiningDate > from ? joiningDate : from;
+  const employedDays = eachUtcDate(joinStart, to).length;
+  const rate = dailyRate(salary, monthDays);
+  const totalSalary =
+    salary.salaryType === SALARY_TYPES.DAILY
+      ? money(rate * paidDays)
+      : money(rate * employedDays);
 
   if (salary.salaryType === SALARY_TYPES.DAILY) {
-    const payableSalary = money(rate * paidDays);
     return {
       workingDays: days.length,
       presentDays,
@@ -212,7 +217,7 @@ export function calculateAttendancePay(salary, records = [], options = {}) {
       totalSalary,
       dailyRate: rate,
       totalDeduction: 0,
-      payableSalary,
+      payableSalary: totalSalary,
       salaryType: SALARY_TYPES.DAILY,
       days,
       skipped: false,
@@ -229,7 +234,8 @@ export function calculateAttendancePay(salary, records = [], options = {}) {
     unpaidLeaveDays,
     totalSalary,
     dailyRate: rate,
-    workingDaysPerMonth,
+    workingDaysPerMonth: monthDays,
+    employedDays,
     totalDeduction,
     payableSalary: money(Math.max(0, totalSalary - totalDeduction)),
     salaryType: SALARY_TYPES.MONTHLY,

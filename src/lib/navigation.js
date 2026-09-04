@@ -53,8 +53,9 @@ export const NAVIGATION = [
   {
     id: "overview",
     label: "Overview",
+    roles: [ROLES.PLATFORM_ADMIN, ROLES.NGO_ADMIN],
     items: [
-      { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: "House" },
+      { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: "House", roles: [ROLES.PLATFORM_ADMIN, ROLES.NGO_ADMIN] },
     ],
   },
   {
@@ -120,7 +121,7 @@ export const NAVIGATION = [
         icon: "PersonWorker",
         roles: R.WORKER,
         children: [
-          { id: "my-attendance", label: "My Attendance", href: "/attendance/me", icon: "Calendar", module: MODULES.ATTENDANCE, roles: R.WORKER, workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
+          { id: "my-attendance", label: "My Attendance", href: "/attendance/me", icon: "Calendar", roles: R.WORKER, workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
           { id: "my-assignments", label: "My Projects / Sites", href: "/my-assignments", icon: "MapPin", module: MODULES.PROJECTS, roles: R.WORKER, workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
           { id: "my-leave", label: "My Leave", href: "/leave", icon: "CalendarXmark", roles: R.WORKER, workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
           { id: "issued", label: "Issued Resources", href: "/issued", icon: "Box", roles: R.WORKER, workerDefault: true, excludeDesignations: [DESIGNATIONS.DATA_ENTRY_OFFICER] },
@@ -253,6 +254,13 @@ function filterItems(items, user) {
       return canSeeItem(item, user) ? item : null;
     })
     .filter(Boolean);
+}
+
+export function homePath(user) {
+  if (user?.role === ROLES.WORKER) {
+    return user.designation === DESIGNATIONS.DATA_ENTRY_OFFICER ? "/data-entry" : "/attendance/me";
+  }
+  return "/dashboard";
 }
 
 export function getVisibleNavigation(user) {

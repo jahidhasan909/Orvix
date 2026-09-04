@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { asString } from "@/lib/worker-payload";
 import { requireNgoSession } from "@/lib/require-ngo-session";
+import { requirePlatformAdmin } from "@/lib/require-platform-admin";
 import { ROLES } from "@/lib/navigation";
 
 function jsonError(message, status = 400) {
@@ -18,11 +19,21 @@ function publicNote(row) {
   };
 }
 
+async function requireNotes() {
+  const platform = await requirePlatformAdmin();
+  if (!platform.error) return { userId: platform.userId, ngoId: null };
+  return requireNgoSession([ROLES.WORKER, ROLES.NGO_ADMIN]);
+}
+
+function noteWhere(gate) {
+  return gate.ngoId ? { userId: gate.userId, ngoId: gate.ngoId } : { userId: gate.userId };
+}
+
 export async function GET() {
-  const gate = await requireNgoSession([ROLES.WORKER, ROLES.NGO_ADMIN]);
+  const gate = await requireNotes();
   if (gate.error) return jsonError(gate.error, gate.status);
   const items = await prisma.notification.findMany({
-    where: { userId: gate.userId, ngoId: gate.ngoId },
+    where: noteWhere(gate),
     orderBy: { createdAt: "desc" },
     take: 50,
   });
@@ -30,19 +41,19 @@ export async function GET() {
 }
 
 export async function PATCH(request) {
-  const gate = await requireNgoSession([ROLES.WORKER, ROLES.NGO_ADMIN]);
+  const gate = await requireNotes();
   if (gate.error) return jsonError(gate.error, gate.status);
   const body = await request.json().catch(() => null);
   const id = asString(body?.id);
   if (asString(body?.action) === "readAll") {
     await prisma.notification.updateMany({
-      where: { userId: gate.userId, ngoId: gate.ngoId, unread: true },
+      where: { ...noteWhere(gate), unread: true },
       data: { unread: false },
     });
     return NextResponse.json({ ok: true });
   }
   if (!id) return jsonError("Notification id is required.");
-  const existing = await prisma.notification.findFirst({ where: { id, userId: gate.userId, ngoId: gate.ngoId } });
+  const existing = await prisma.notification.findFirst({ where: { id, ...noteWhere(gate) } });
   if (!existing) return jsonError("Notification not found.", 404);
   const item = await prisma.notification.update({
     where: { id },

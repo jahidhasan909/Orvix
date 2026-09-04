@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { authClient } from "@/lib/auth-client";
+import { homePath } from "@/lib/navigation";
 
 const LOTTIE_SRC = "https://lottie.host/a87aa979-e336-4418-9b49-de3bd19f0ee9/IfQw4w5Qmm.lottie";
 
@@ -60,7 +61,8 @@ export default function LoginPage() {
       return;
     }
 
-    window.location.href = "/dashboard";
+    const session = await authClient.getSession();
+    window.location.href = homePath(session.data?.user);
   };
 
   return (

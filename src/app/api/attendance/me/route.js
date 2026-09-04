@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ABSENCE_REASONS, resolveAbsencePolicy } from "@/lib/absence-policy";
 import { decorateAttendanceDays } from "@/lib/attendance-day";
-import { publicAttendanceRecord, upsertWorkerAttendance } from "@/lib/attendance-save";
+import { absenceReasonLabel, presentPunch, publicAttendanceRecord, upsertWorkerAttendance } from "@/lib/attendance-save";
 import { ATTENDANCE_STATUS, dateKey, monthBounds, utcDate } from "@/lib/payroll";
 import { requireNgoSession } from "@/lib/require-ngo-session";
 import { ROLES } from "@/lib/navigation";
@@ -46,7 +46,10 @@ export async function GET(request) {
     to,
   });
 
-  return NextResponse.json(payloadFrom(result, dateKey(new Date())));
+  return NextResponse.json({
+    joiningDate: dateKey(worker.joiningDate),
+    ...payloadFrom(result, dateKey(new Date())),
+  });
 }
 
 export async function POST(request) {
@@ -65,6 +68,7 @@ export async function POST(request) {
   }
 
   const reasonInput = typeof body?.reason === "string" ? body.reason.trim() : "";
+  const noteInput = typeof body?.note === "string" ? body.note.trim() : "";
   if (status === ATTENDANCE_STATUS.ABSENT && !reasonInput) {
     return jsonError("Please select an absent reason.");
   }
@@ -76,8 +80,8 @@ export async function POST(request) {
   });
   if (!worker) return jsonError("Worker not found.", 404);
 
-  const joiningDate = utcDate(worker.joiningDate);
-  if (joiningDate && date < joiningDate) {
+  const joiningKey = dateKey(worker.joiningDate);
+  if (joiningKey && dateKey(date) < joiningKey) {
     return jsonError("You cannot mark attendance before your joining date.");
   }
 
@@ -89,6 +93,12 @@ export async function POST(request) {
     },
   });
 
+  let punch = null;
+  if (status === ATTENDANCE_STATUS.PRESENT) {
+    punch = presentPunch(existing, body?.action === "check-out" ? "check-out" : "check-in");
+    if (punch.error) return jsonError(punch.error);
+  }
+
   const record = await upsertWorkerAttendance(prisma, {
     ngoId: gate.ngoId,
     userId: worker.id,
@@ -97,9 +107,9 @@ export async function POST(request) {
     data: {
       status,
       leavePaid: status === ATTENDANCE_STATUS.ABSENT ? policy.paid : false,
-      checkInAt: status === ATTENDANCE_STATUS.PRESENT ? existing?.checkInAt ?? new Date() : null,
-      checkOutAt: status === ATTENDANCE_STATUS.PRESENT ? existing?.checkOutAt ?? null : null,
-      reason: status === ATTENDANCE_STATUS.ABSENT ? policy.label : null,
+      checkInAt: punch?.checkInAt ?? null,
+      checkOutAt: punch?.checkOutAt ?? null,
+      reason: status === ATTENDANCE_STATUS.ABSENT ? absenceReasonLabel(policy, noteInput) : null,
     },
   });
 
@@ -113,6 +123,8 @@ export async function POST(request) {
 
   return NextResponse.json({
     item: publicAttendanceRecord(record),
-    ...payloadFrom(result, dateKey(date)),
+    action: punch?.action || "absent",
+    joiningDate: dateKey(worker.joiningDate),
+    ...payloadFrom(result, dateKey(new Date())),
   });
 }
