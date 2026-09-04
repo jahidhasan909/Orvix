@@ -29,13 +29,16 @@ function appOrigin() {
 
 function requestOrigins(request) {
   const origins = new Set();
+  if (!request) return [];
   try {
-    origins.add(new URL(request.url).origin);
+    if (request.url) origins.add(new URL(request.url).origin);
   } catch {}
-  const host = String(request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
+  const headers = request.headers;
+  if (!headers?.get) return [...origins];
+  const host = String(headers.get("x-forwarded-host") || headers.get("host") || "")
     .split(",")[0]
     .trim();
-  const proto = String(request.headers.get("x-forwarded-proto") || "https").split(",")[0].trim();
+  const proto = String(headers.get("x-forwarded-proto") || "https").split(",")[0].trim();
   if (host) origins.add(`${proto}://${host}`);
   return [...origins];
 }
@@ -79,6 +82,7 @@ export const auth = betterAuth({
                     originFrom(process.env.VERCEL_PROJECT_PRODUCTION_URL),
                     originFrom(process.env.VERCEL_URL),
                     originFrom(process.env.VERCEL_BRANCH_URL),
+                    "https://orvix-liart.vercel.app",
                     "https://orvix-pi.vercel.app",
                     "https://*.vercel.app",
                     "http://localhost:3000",
