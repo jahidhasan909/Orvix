@@ -30,17 +30,17 @@ export default function DashboardHeader() {
             : { title: "ORVIX", eyebrow: "Workspace" });
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-dashed border-slate-300 bg-white px-5">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-dashed border-slate-300 bg-white px-3 md:gap-4 md:px-5">
       <MobileNav />
 
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold tracking-[0.12em] text-slate-400 uppercase">{meta.eyebrow}</p>
+        <p className="hidden text-[11px] font-semibold tracking-[0.12em] text-slate-400 uppercase sm:block">{meta.eyebrow}</p>
         <h1 className="truncate text-base font-semibold text-slate-900">{meta.title}</h1>
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-2 md:gap-3">
         {persona?.roleLabel && (
-          <span className="max-w-[160px] truncate rounded-full border border-[#2075fe]/20 bg-[#2075fe]/10 px-3 py-1 text-xs font-semibold text-[#2075fe] sm:max-w-none">
+          <span className="hidden max-w-[160px] truncate rounded-full border border-[#2075fe]/20 bg-[#2075fe]/10 px-3 py-1 text-xs font-semibold text-[#2075fe] lg:inline sm:max-w-none">
             {persona.roleLabel}
           </span>
         )}
@@ -56,7 +56,7 @@ export default function DashboardHeader() {
           <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-[#2075fe]" />
         </button>
         {openNotes && (
-          <div className="absolute top-12 right-0 w-80 overflow-hidden rounded-xl border border-dashed border-slate-200 bg-white shadow-sm">
+          <div className="absolute top-12 right-0 w-[min(20rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-dashed border-slate-200 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <p className="text-sm font-semibold text-slate-900">Notifications</p>
               <Link href="/notifications" onClick={() => setOpenNotes(false)} className="text-xs font-medium text-[#2075fe]">

@@ -97,14 +97,19 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse }) {
   return (
     <div className="flex h-full flex-col border-r border-dashed border-slate-300 bg-white text-slate-700">
       <div className={`relative flex h-16 items-center border-b border-dashed border-slate-300 ${collapsed ? "justify-center px-1" : "gap-3 px-4"}`}>
-        <Image
-          src="/orvix-logo.png"
-          alt="ORVIX"
-          width={collapsed ? 28 : 40}
-          height={collapsed ? 28 : 40}
-          className="shrink-0"
-          priority
-        />
+        {collapsed && onToggleCollapse ? (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="rounded-md p-1 hover:bg-slate-50"
+            aria-label="Open sidebar"
+            title="Open sidebar"
+          >
+            <Image src="/orvix-logo.png" alt="ORVIX" width={28} height={28} className="shrink-0" priority />
+          </button>
+        ) : (
+          <Image src="/orvix-logo.png" alt="ORVIX" width={40} height={40} className="shrink-0" priority />
+        )}
         {!collapsed && (
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-bold tracking-wide text-slate-900">ORVIX</p>
@@ -115,7 +120,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse }) {
           <button
             type="button"
             onClick={onToggleCollapse}
-            className={`hidden rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-800 lg:inline-flex ${
+            className={`hidden rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-800 md:inline-flex ${
               collapsed ? "absolute top-1 right-0.5" : ""
             }`}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -195,7 +200,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse }) {
 export function DesktopSidebar({ collapsed, onToggleCollapse }) {
   return (
     <aside
-      className={`sticky top-0 hidden h-screen shrink-0 flex-col transition-[width] duration-200 lg:flex ${
+      className={`sticky top-0 hidden h-screen shrink-0 flex-col transition-[width] duration-200 md:flex ${
         collapsed ? "w-[64px]" : "w-[280px]"
       }`}
     >
@@ -206,11 +211,10 @@ export function DesktopSidebar({ collapsed, onToggleCollapse }) {
 
 export function MobileNav() {
   return (
-    <div className="lg:hidden">
+    <div className="md:hidden">
       <Drawer>
-        <Button variant="secondary" className="border-slate-200 bg-white text-slate-700">
+        <Button variant="secondary" className="size-10 border-slate-200 bg-white p-0 text-slate-700" aria-label="Open menu">
           <Bars className="size-4" />
-          Menu
         </Button>
         <Drawer.Backdrop>
           <Drawer.Content placement="left" className="w-[min(280px,85vw)] p-0">

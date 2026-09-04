@@ -5,9 +5,42 @@ import { AccessProvider, useAccess } from "@/context/AccessContext";
 import { DesktopSidebar } from "./Sidebar";
 import DashboardHeader from "./DashboardHeader";
 
+function useTableCardLabels(enabled) {
+  useEffect(() => {
+    if (!enabled) return;
+    const root = document.querySelector("main");
+    if (!root) return;
+
+    const stamp = () => {
+      root.querySelectorAll("table").forEach((table) => {
+        const headers = [...table.querySelectorAll("thead th")].map((th) =>
+          th.textContent.replace(/\s+/g, " ").trim()
+        );
+        table.querySelectorAll("tbody tr").forEach((tr) => {
+          [...tr.children]
+            .filter((el) => el.tagName === "TD")
+            .forEach((td, index) => {
+              if (td.hasAttribute("colspan")) {
+                td.removeAttribute("data-label");
+                return;
+              }
+              if (headers[index]) td.setAttribute("data-label", headers[index]);
+            });
+        });
+      });
+    };
+
+    stamp();
+    const observer = new MutationObserver(stamp);
+    observer.observe(root, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [enabled]);
+}
+
 function Shell({ children }) {
   const { persona, isPending } = useAccess();
   const [collapsed, setCollapsed] = useState(false);
+  useTableCardLabels(Boolean(persona) && !isPending);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("orvix.sidebarCollapsed");
@@ -38,7 +71,7 @@ function Shell({ children }) {
       <DesktopSidebar collapsed={collapsed} onToggleCollapse={toggle} />
       <div className="flex min-w-0 flex-1 flex-col">
         <DashboardHeader />
-        <main className="flex-1 p-5">{children}</main>
+        <main className="flex-1 p-3 md:p-5">{children}</main>
       </div>
     </div>
   );

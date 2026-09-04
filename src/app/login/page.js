@@ -69,9 +69,17 @@ export default function LoginPage() {
         <div className="absolute top-0 left-0 z-10 px-6 py-5 sm:px-8 sm:py-6">
           <BrandMark />
         </div>
-        <div className="flex flex-1 items-center justify-center px-6 py-24 sm:px-10">
+        <div className="flex flex-1 flex-col items-center justify-center px-6 py-24 sm:px-10">
           <div className="h-[min(420px,52vh)] w-full max-w-lg">
             <DotLottieReact src={LOTTIE_SRC} loop autoplay className="h-full w-full" />
+          </div>
+          <div className="mt-4 hidden max-w-md text-center lg:block">
+            <p className="text-2xl font-semibold tracking-tight text-slate-900">
+              One workspace for every NGO operation
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Attendance, people, inventory, and field work — clear, connected, and ready when your team is.
+            </p>
           </div>
         </div>
       </section>
@@ -149,6 +157,8 @@ export default function LoginPage() {
               {isLoading ? "Logging in..." : "Log In"}
             </button>
           </form>
+
+         
         </div>
       </section>
     </div>
