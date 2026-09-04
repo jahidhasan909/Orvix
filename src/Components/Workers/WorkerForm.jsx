@@ -42,6 +42,14 @@ export default function WorkerForm({
     setter(list.includes(id) ? list.filter((item) => item !== id) : [...list, id]);
   };
 
+  const toggleSite = (site) => {
+    const assigning = !siteIds.includes(site.id);
+    toggle(siteIds, site.id, setSiteIds);
+    if (assigning && site.projectId) {
+      setProjectIds((current) => (current.includes(site.projectId) ? current : [...current, site.projectId]));
+    }
+  };
+
   const changeDesignation = (value) => {
     setDesignation(value);
     setPermissions(defaultPermissionsFor(value));
@@ -206,7 +214,7 @@ export default function WorkerForm({
                         type="checkbox"
                         disabled={disabled}
                         checked={siteIds.includes(site.id)}
-                        onChange={() => toggle(siteIds, site.id, setSiteIds)}
+                        onChange={() => toggleSite(site)}
                       />
                       {site.name}{site.location ? ` · ${site.location}` : ""}
                     </label>
