@@ -47,8 +47,6 @@ export default function LoginPage() {
     setAuthError("");
     setIsLoading(true);
 
-    await authClient.signOut().catch(() => {});
-
     const { error } = await authClient.signIn.email({
       email: data.email,
       password: data.password,

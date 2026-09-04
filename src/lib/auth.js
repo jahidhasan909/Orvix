@@ -5,10 +5,39 @@ import { customSession, twoFactor } from "better-auth/plugins";
 import { ROLES } from "@/lib/navigation";
 import { prisma } from "@/lib/prisma";
 
-function vercelOrigin() {
-  const host = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
-  if (!host) return null;
-  return `https://${String(host).replace(/^https?:\/\//, "")}`;
+function originFrom(value) {
+  if (!value) return null;
+  try {
+    const url = /^https?:\/\//i.test(String(value))
+      ? new URL(value)
+      : new URL(`https://${value}`);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
+function appOrigin() {
+  return (
+    originFrom(process.env.VERCEL_PROJECT_PRODUCTION_URL) ||
+    originFrom(process.env.VERCEL_URL) ||
+    originFrom(process.env.BETTER_AUTH_URL) ||
+    originFrom(process.env.NEXT_PUBLIC_APP_URL)
+  );
+}
+
+function requestOrigins(request) {
+  const origins = new Set();
+  try {
+    origins.add(new URL(request.url).origin);
+  } catch {}
+  const host = String(request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
+    .split(",")[0]
+    .trim();
+  const proto = String(request.headers.get("x-forwarded-proto") || "https").split(",")[0].trim();
+  if (host) origins.add(`${proto}://${host}`);
+  return [...origins];
 }
 
 const skipLoginTwoFactor = {
@@ -32,23 +61,32 @@ const skipLoginTwoFactor = {
 
 export const auth = betterAuth({
     appName: "ORVIX",
-    baseURL: vercelOrigin() || process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
+    baseURL: appOrigin() || "http://localhost:3000",
+    advanced: {
+        trustedProxyHeaders: true,
+    },
     emailAndPassword: {
         enabled: true,
         disableSignUp: true,
     },
-    trustedOrigins: Array.from(
-        new Set(
-            [
-                vercelOrigin(),
-                process.env.BETTER_AUTH_URL,
-                process.env.NEXT_PUBLIC_APP_URL,
-                "https://orvix-pi.vercel.app",
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-            ].filter(Boolean)
-        )
-    ),
+    trustedOrigins: async (request) =>
+        Array.from(
+            new Set(
+                [
+                    appOrigin(),
+                    originFrom(process.env.BETTER_AUTH_URL),
+                    originFrom(process.env.NEXT_PUBLIC_APP_URL),
+                    originFrom(process.env.VERCEL_PROJECT_PRODUCTION_URL),
+                    originFrom(process.env.VERCEL_URL),
+                    originFrom(process.env.VERCEL_BRANCH_URL),
+                    "https://orvix-pi.vercel.app",
+                    "https://*.vercel.app",
+                    "http://localhost:3000",
+                    "http://127.0.0.1:3000",
+                    ...requestOrigins(request),
+                ].filter(Boolean)
+            )
+        ),
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
