@@ -73,7 +73,6 @@ export const NAVIGATION = [
     roles: R.PLATFORM,
     items: [
       { id: "platform-users", label: "Platform Users", href: "/platform/users", icon: "Persons", roles: R.PLATFORM },
-      { id: "platform-settings", label: "Platform Settings", href: "/platform/settings", icon: "Gear", roles: R.PLATFORM },
       { id: "platform-security", label: "Security / MFA", href: "/platform/security", icon: "Shield", roles: R.PLATFORM },
     ],
   },
@@ -293,7 +292,6 @@ export const PAGE_META = {
   "/platform/ngos/new": { title: "Create NGO", eyebrow: "Organization", description: "Register an NGO, enable modules, and create its first NGO Admin." },
   "/platform/modules": { title: "Module Management", eyebrow: "Organization", description: "Enable or disable operational modules per NGO." },
   "/platform/users": { title: "Platform Users", eyebrow: "Administration", description: "Platform administrators only. NGO Admins and workers are managed in their own sections." },
-  "/platform/settings": { title: "Platform Settings", eyebrow: "Administration", description: "Global platform configuration and branding." },
   "/platform/security": { title: "Security / MFA", eyebrow: "Administration", description: "Authentication policies and multi-factor settings." },
   "/platform/reports": { title: "Platform Reports", eyebrow: "Insights", description: "Cross-NGO operational and adoption reports." },
   "/platform/monitoring": { title: "Monitoring", eyebrow: "Insights", description: "Platform health, usage, and NGO activity." },
